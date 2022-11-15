@@ -40,9 +40,9 @@ create TABLE PersonalInfo (
 	FirstName VARCHAR(50),
 	MiddleName VARCHAR(50),
 	SecondName VARCHAR(50),
-	TelephoneNumber INT,
-	DriverLicense INT,
-	Passport INT,
+	TelephoneNumber VARCHAR(10),
+	DriverLicense BIGINT,
+	Passport BIGINT,
 	CardNumber BIGINT,
 	CardOwner VARCHAR(30),
 	CVC INT,
@@ -65,21 +65,22 @@ CREATE TABLE Cars (
   Id INTEGER IDENTITY(1,1),
   Brand varchar(50) NOT NULL,
   Model varchar(50) NOT NULL,
-  RegisterSign varchar(9) NOT NULL UNIQUE,
   Description varchar(500) DEFAULT(''),
+  ImageSource VARCHAR(50),
 
   CONSTRAINT pk_carId PRIMARY KEY(Id),
-  CONSTRAINT registerSignValidation CHECK(RegisterSign LIKE '[юбейлмнпярсу][0-9][0-9][0-9][юбейлмнпярсу][юбейлмнпярсу]' AND  RegisterSign NOT LIKE '[юбейлмнпярсу]000[юбейлмнпярсу][юбейлмнпярсу]')
 )
 
 CREATE TABLE CarPark(
 	Id INTEGER IDENTITY(1,1) Primary KEY,
 	Car INTEGER NOT NULL CHECK(Car > 0),
+	RegisterSign varchar(9) NOT NULL UNIQUE,
 	City INTEGER NOT NULL CHECK (City > 0),
 	IsBusy BIT DEFAULT(0),
 
 	CONSTRAINT fk_carModel FOREIGN KEY(Car) REFERENCES Cars(Id),
 	CONSTRAINT fk_carCity FOREIGN KEY(City) REFERENCES AvailableCities(Id),
+	CONSTRAINT registerSignValidation CHECK(RegisterSign LIKE '[юбейлмнпярсу][0-9][0-9][0-9][юбейлмнпярсу][юбейлмнпярсу]' AND  RegisterSign NOT LIKE '[юбейлмнпярсу]000[юбейлмнпярсу][юбейлмнпярсу]')
 )
 
 
