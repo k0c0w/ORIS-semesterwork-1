@@ -1,4 +1,3 @@
-
 CREATE TABLE CompanyDocuments (
 	Id INTEGER IDENTITY(1,1) PRIMARY KEY,
 	Name VARCHAR(100),
@@ -18,7 +17,6 @@ CREATE TABLE CustomersQuestions (
 	StatusCode INT NOT NULL,
 	CONSTRAINT fk_statusCode FOREIGN KEY(StatusCode) REFERENCES  QuestionsStatus(Status),
 )
-
 
 
 CREATE TABLE Users (
@@ -73,14 +71,17 @@ CREATE TABLE Cars (
 
 CREATE TABLE CarPark(
 	Id INTEGER IDENTITY(1,1) Primary KEY,
-	Car INTEGER NOT NULL CHECK(Car > 0),
+	CarModel INTEGER NOT NULL CHECK(Car > 0),
 	RegisterSign varchar(9) NOT NULL UNIQUE,
 	City INTEGER NOT NULL CHECK (City > 0),
 	IsBusy BIT DEFAULT(0),
+	IsReserved BIT DEFAULT(0),
 
-	CONSTRAINT fk_carModel FOREIGN KEY(Car) REFERENCES Cars(Id),
+	CONSTRAINT fk_carModel FOREIGN KEY(CarModel) REFERENCES Cars(Id),
 	CONSTRAINT fk_carCity FOREIGN KEY(City) REFERENCES AvailableCities(Id),
-	CONSTRAINT registerSignValidation CHECK(RegisterSign LIKE '[ÀÂÅÊÌÍÎÐÑÒÓÕ][0-9][0-9][0-9][ÀÂÅÊÌÍÎÐÑÒÓÕ][ÀÂÅÊÌÍÎÐÑÒÓÕ]' AND  RegisterSign NOT LIKE '[ÀÂÅÊÌÍÎÐÑÒÓÕ]000[ÀÂÅÊÌÍÎÐÑÒÓÕ][ÀÂÅÊÌÍÎÐÑÒÓÕ]')
+	CONSTRAINT registerSignValidation CHECK((RegisterSign LIKE '[ÀÂÅÊÌÍÎÐÑÒÓÕ][0-9][0-9][0-9][ÀÂÅÊÌÍÎÐÑÒÓÕ][ÀÂÅÊÌÍÎÐÑÒÓÕ][17][0-9][0-9]' 
+													or RegisterSign LIKE '[ÀÂÅÊÌÍÎÐÑÒÓÕ][0-9][0-9][0-9][ÀÂÅÊÌÍÎÐÑÒÓÕ][ÀÂÅÊÌÍÎÐÑÒÓÕ][0-9][0-9]') 
+													AND  RegisterSign NOT LIKE '[ÀÂÅÊÌÍÎÐÑÒÓÕ]000[ÀÂÅÊÌÍÎÐÑÒÓÕ][ÀÂÅÊÌÍÎÐÑÒÓÕ]')
 )
 
 
@@ -95,38 +96,21 @@ CREATE TABLE Tariffs(
 	CONSTRAINT fk_tariffCar FOREIGN KEY(Car) REFERENCES Cars(Id),
 )
 
-CREATE TABLE Subscription (
-	Id INTEGER IDENTITY(1,1),
-	Tariff INTEGER NOT NULL,
-	Car INTEGER NOT NULL,
-	CarId INTEGER,
-	SubStart DATE NOT NULL,	
-	SubEnd DATE NOT NULL,
-					/*òîæå ññûëêè? ïðåäïîëàãàåòñÿ ÷òî ïîëÿ êîïèðóþòñÿ ñ ïîëåé Orders, 
-					åñòü âîðêåð êîòîðûé çàïóñêàåòñÿ íî÷üþ è îáíîâëÿåò ïîëÿ åñëè ñðîê èñòåê*/
-	IsActive BIT,
-
-	CONSTRAINT pk_subcriptionId PRIMARY KEY(Id),
-	CONSTRAINT fk_tariff FOREIGN KEY(Tariff) REFERENCES Tariffs(Id),
-	CONSTRAINT fk_carId FOREIGN KEY(CarId) REFERENCES CarPark(Id),
-)
-
 
 CREATE TABLE Orders (
 	Id INTEGER IDENTITY(1,1),
 	UserId INTEGER NOT NULL CHECK(UserId > 0),
-	Tariff INTEGER NOT NULL CHECK(Tariff > 0),
+	TariffId INTEGER NOT NULL CHECK(TariffId > 0),
 	SubscriptionStart DATE NOT NULL,
 	SubscriptionEnd DATE NOT NULL,
-	SubscriptionId INTEGER NOT NULL,
+	CarId integer not null CHECK(CarId > 0),
 	CityId INTEGER NOT NULL CHECK(CityId > 0),
-	IsCancled BIT DEFAULT(0),
+
+	IsCancled BIT DEFAULT(0) NOT NULL,
 
 	CHECK(SubscriptionStart <= SubscriptionEnd),
 	CONSTRAINT fk_ordersUserId FOREIGN KEY (UserId)  REFERENCES Users(Id),
 	CONSTRAINT fk_cityId FOREIGN KEY (CityId)  REFERENCES AvailableCities(Id),
-	CONSTRAINT fk_tariffId FOREIGN KEY (Tariff)  REFERENCES Tariffs(Id),
-	CONSTRAINT fk_subscriptionId FOREIGN KEY (SubscriptionId)  REFERENCES Subscription(Id),
+	CONSTRAINT fk_tariffId FOREIGN KEY (TariffId)  REFERENCES Tariffs(Id),
 	CONSTRAINT pk_orderId PRIMARY KEY(Id),
 )
-
