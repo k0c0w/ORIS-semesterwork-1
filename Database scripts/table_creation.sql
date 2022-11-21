@@ -14,7 +14,7 @@ CREATE TABLE CustomersQuestions (
 	UserId INTEGER,
 	Question varchar(5000) NOT NULL,
 	ResponseEmail varchar(254) NOT NULL,
-	StatusCode INT NOT NULL,
+	StatusCode INT NOT NULL DEFAULT(1),
 	CONSTRAINT fk_statusCode FOREIGN KEY(StatusCode) REFERENCES  QuestionsStatus(Status),
 )
 
@@ -71,13 +71,13 @@ CREATE TABLE Cars (
 
 CREATE TABLE CarPark(
 	Id INTEGER IDENTITY(1,1) Primary KEY,
-	CarModel INTEGER NOT NULL CHECK(Car > 0),
+	Car INTEGER NOT NULL CHECK(Car > 0),
 	RegisterSign varchar(9) NOT NULL UNIQUE,
 	City INTEGER NOT NULL CHECK (City > 0),
 	IsBusy BIT DEFAULT(0),
 	IsReserved BIT DEFAULT(0),
 
-	CONSTRAINT fk_carModel FOREIGN KEY(CarModel) REFERENCES Cars(Id),
+	CONSTRAINT fk_carModel FOREIGN KEY(Car) REFERENCES Cars(Id),
 	CONSTRAINT fk_carCity FOREIGN KEY(City) REFERENCES AvailableCities(Id),
 	CONSTRAINT registerSignValidation CHECK((RegisterSign LIKE '[юбейлмнпярсу][0-9][0-9][0-9][юбейлмнпярсу][юбейлмнпярсу][17][0-9][0-9]' 
 													or RegisterSign LIKE '[юбейлмнпярсу][0-9][0-9][0-9][юбейлмнпярсу][юбейлмнпярсу][0-9][0-9]') 
