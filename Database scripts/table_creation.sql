@@ -38,7 +38,7 @@ create TABLE PersonalInfo (
 	UserId INTEGER NOT NULL UNIQUE,
 	FirstName VARCHAR(50),
 	MiddleName VARCHAR(50),
-	SecondName VARCHAR(50),
+	LastName VARCHAR(50),
 	TelephoneNumber VARCHAR(10),
 	DriverLicense BIGINT,
 	Passport BIGINT,
