@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 
-namespace Server.Services
+namespace Server.Services.ServerServices
 {
     public static class HttpListenerResponseExtenssions
     {
@@ -37,6 +37,11 @@ namespace Server.Services
             return response;
         }
 
+        public static async Task WriteToBodyAsync(this HttpListenerResponse response, byte[] buffer)
+        {
+            await WriteToBodyAsync(response.OutputStream, buffer);
+        }
+        
         public static async Task WriteToBodyAsync(Stream output, byte[] buffer)
         {
             using (output)
