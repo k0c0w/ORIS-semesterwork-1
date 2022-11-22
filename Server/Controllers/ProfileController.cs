@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Server.Models;
-using Server.MyORM;
 using Server.Services.ServerServices;
 namespace Server.Controllers;
 
@@ -18,6 +17,7 @@ public class MyController
         return new TemplateView("ProfileEdit", new { User = user, PersonalInfo = info });
     }
 
+    // временная реализация
     [HttpGet("login")]
     public async Task<IActionResult> Login([CookieRequired] CookieCollection cookie)
     {
