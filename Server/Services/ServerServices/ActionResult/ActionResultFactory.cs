@@ -39,7 +39,6 @@ public class Unauthorized : IActionResult
     }
 }
 
-//TODO: переделать чтобы не висели массивы и не было утечки памяти
 public class HtmlResult : IActionResult
 {
     private readonly byte[] _htmlBytes;
