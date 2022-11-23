@@ -6,7 +6,7 @@ using Server.Services.ServerServices;
 namespace Server.Controllers;
 
 [ApiController("profile")]
-public class MyController
+public class ProfileController
 {
     private readonly ORM _orm = new ORM();
     private readonly SessionManager _sessionManager = SessionManager.Instance;
@@ -108,25 +108,32 @@ public class MyController
         return ActionResultFactory.Json(new OperationResultDto() {Success = updatedRows > 0});
     }
 
-    [HttpPost("edit")]
+    [HttpPost("edit/password")]
     [AuthorizeRequired]
-    public async Task<IActionResult> ChangeUserPassword([FromQuery] string newPassword, [SessionRequired] Session userSession)
+    public async Task<IActionResult> ChangeUserPassword([FromQuery] string password, [SessionRequired] Session userSession)
     {
-        if(!FormFieldValidator.IsPasswordValid(newPassword))
+        if(!FormFieldValidator.IsPasswordValid(password))
             return ActionResultFactory.Json(new OperationResultDto() {Errors = new[] 
                     {new InputError("", "Пароль должен состоять из цифр и латинских символов (от 5 до 50).")}});
         var user = GetUserBySession(userSession);
-        if(newPassword == user.Password)
+        if(password == user.Password)
             return ActionResultFactory.Json(new OperationResultDto() 
                 {Errors = new[] {new InputError("", "Новый пароль совпадает с предыдущим!") }});
         
-        var updated = new User() { Password = newPassword };
+        var updated = new User() { Password = password };
         _orm.Update(updated, new WhereModel<User>(user));
         var newSession = new Session() { Id = Guid.NewGuid(), AccountId = (int)user.Id, CreateDateTime = DateTime.Now };
         _sessionManager.TerminateSession(userSession);
         _sessionManager.CreateSession(newSession.Id, () => newSession);
         
         return ActionResultFactory.Json(new OperationResultDto() {Success = true});
+    }
+    
+    [HttpGet("edit/password")]
+    [AuthorizeRequired]
+    public async Task<IActionResult> ChangeUserPasswordPage()
+    {
+        return new TemplateView("PasswordChangePage", new { });
     }
 
     [HttpPost("login")]
