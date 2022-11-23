@@ -14,6 +14,6 @@ public record PersonalInfo
     public int? DriverLicense { get; init; }
     public ulong? Passport { get; init; }
     public ulong? CardNumber { get; init; }
-    public string? CardName { get; init; }
+    public string? CardOwner { get; init; }
     public int? CVC { get; init; }
 }

@@ -35,4 +35,6 @@ public class SessionManager
     {
         return _cache.TryGetValue(key, out session);
     }
+
+    public void TerminateSession(object key) => _cache.Remove(key);
 }    

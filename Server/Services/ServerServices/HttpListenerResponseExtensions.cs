@@ -3,9 +3,9 @@ using System.Text;
 
 namespace Server.Services.ServerServices
 {
-    public static class HttpListenerResponseExtenssions
+    public static class HttpListenerResponseExtensions
     {
-        public static HttpListenerResponse SetContentType(this HttpListenerResponse response, string? extension = "")
+        public static HttpListenerResponse SetContentType(this HttpListenerResponse response, string extension = "")
         {
             response.Headers.Set("Content-Type", GetContentType(extension));
             return response;
@@ -44,7 +44,7 @@ namespace Server.Services.ServerServices
         
         public static async Task WriteToBodyAsync(Stream output, byte[] buffer)
         {
-            using (output)
+            await using (output)
             {
                 await output.WriteAsync(buffer, 0, buffer.Length);
                 output.Close();

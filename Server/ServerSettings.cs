@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public record class ServerSettings
+    public class ServerSettings
     {
         public int Port { get; init; } = 8080;
 
         public string Path { get; init; } = @"./static/";
+
+        public string DatabaseConnectionString { get; init; } = "";
 
         public static ServerSettings? GetServerSettingsFromFile(ILogger logger) 
         {
@@ -25,7 +27,7 @@ namespace Server
                 logger.ReportError(ex.Message);
             }
             
-            return i == null ? new ServerSettings() : i;
+            return i ?? new ServerSettings();
         }
     }
 }
