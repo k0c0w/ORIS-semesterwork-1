@@ -24,43 +24,27 @@ namespace Server
             _port = settings.Port;
         }
 
-        public async void Start()
+        public async Task Start()
         {
-            try
+            logger.Log("Starting server...");
+            listener.Start();
+            logger.Log($"Server started at port {_port}");
+            while (true)
             {
-                if (IsRunning)
+                try
                 {
-                    logger.Log("Server is already  running!");
-                    return;
+                    var context = await listener.GetContextAsync();
+                    HandleRequestAsync(context);
                 }
-
-                logger.Log("Starting server...");
-                listener.Start();
-                IsRunning = true;
-                logger.Log($"Server has started at port {_port}");
-
-                while (true)
-                    await HandleRequestAsync();
-            }
-            catch(Exception ex)
-            {
-                if (IsRunning)
+                catch(Exception ex)
                 {
-                    logger.ReportError($"Closing server since exception: {ex.Message}");
+                    logger.ReportError($"Unhandled exception: {ex.Message}");
                 }
             }
         }
-
-        public void Stop()
+        
+        private async Task HandleRequestAsync(HttpListenerContext context)
         {
-            listener.Stop();
-            IsRunning = false;
-            logger.Log($"Closed server at port {_port}...");
-        }
-
-        private async Task HandleRequestAsync()
-        {
-            var context = await listener.GetContextAsync();
             var request = context.Request;
             var fileSent = false;
             
