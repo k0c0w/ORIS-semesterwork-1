@@ -6,13 +6,9 @@ namespace Server.Models;
 public record class User
 {
     public int? Id { get; init; }
-    
     public string? FirstName { get; init; }
-    
     public string? Email { get; init; }
-    
     public string? Password { get; init; }
-    
     public DateTime? BirthDate { get; init; }
 
     public bool? DataProcessingAgreement { get; init; }
