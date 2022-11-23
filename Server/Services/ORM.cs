@@ -9,14 +9,30 @@ namespace Server.Services.ServerServices;
 
 public class ORM
 {
+    private static readonly string _connectionStringFromJson;
     public string _connectionString { get; }
 
-    public ORM(string connectionString)
+    static ORM()
     {
-        _connectionString = connectionString;
+        _connectionStringFromJson =
+            ServerSettings.GetServerSettingsFromFile(new ConsoleLogger()).DatabaseConnectionString;
+    }
+    
+    public ORM(string connectionString="")
+    {
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            if (string.IsNullOrEmpty(_connectionStringFromJson))
+                throw new ArgumentException("Connection string must be assigned before you use ORM.");
+            _connectionString = _connectionStringFromJson;
+        }
+        else
+        {
+            _connectionString = connectionString;
+        }
     }
 
-    public IEnumerable<T> Select<T>(WhereModel<T> Condition) => Select<T>(Condition.GetSQLConstraints);
+    public IEnumerable<T> Select<T>(WhereModel<T> condition) => Select<T>(condition.GetSQLConstraints);
 
     public IEnumerable<T> Select<T>(IEnumerable<WhereModel<T>> models) 
         => Select<T>(CreateWhereCondition(models));
@@ -57,15 +73,42 @@ public class ORM
     public int Insert<T>(T obj)
     {
         var modelType = obj.GetType();
-        var propeties = modelType.GetProperties();
+        var properties = modelType.GetProperties().Where(x => x.Name != "Id");
         var sb = new StringBuilder();
         var l = $"insert into {GetTableName(modelType)} (";
         sb.Append(l);
-        sb.Append(JoinParameters(propeties.Select(x => x.Name).Where(x => x != "Id")));
+        sb.Append(JoinParameters(properties.Select(x => x.Name)));
         sb.Append(") values( ");
-        sb.Append(string.Join(',', GetConvertedProperties(obj, propeties.Where(x => x.Name != "Id"))));
+        sb.Append(string.Join(',', GetConvertedProperties(obj, properties)));
         sb.Append(')');
 
+        return ExecuteNonQuery(sb.ToString());
+    }
+
+    public int Update<T>(T updated, WhereModel<T> condition)
+    {
+        var where = condition.GetSQLConstraints;
+        var modelType = updated.GetType();
+        var properties = modelType.GetProperties().Where(x => x.Name != "Id");
+        var iterated = false;
+        var sb = new StringBuilder();
+        sb.Append($"UPDATE {GetTableName(modelType)} SET ");
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(updated);
+            if(value == null)
+                continue;
+            
+            sb.Append($"{property.Name} = {GetConvertedToSqlString(value)}");
+            sb.Append(", ");
+            iterated = true;
+        }
+
+        if (iterated)
+            sb.Remove(sb.Length - 2, 2);
+        
+        if (!string.IsNullOrEmpty(where))
+            sb.Append($" WHERE {where}");
         return ExecuteNonQuery(sb.ToString());
     }
 
@@ -101,23 +144,23 @@ public class ORM
         var converted = new List<object>();
         foreach(var property in properties)
         {
-            var type = property.PropertyType;
-            if (type is bool)
-                converted.Add((bool)property.GetValue(instance) == true ? 1 : 0);
-            else if (type is DateTime)
-            {
-                var dateTime = (DateTime)property.GetValue(instance);
-                converted.Add(dateTime.ToString("'MM/dd/yyyy hh:mm:ss'"));
-            }
-            else if (type is DateOnly)
-            {
-                var date = (DateOnly)property.GetValue(instance);
-                converted.Add(date.ToString("'MM/dd/yyyy'"));
-            }
-            else
-                converted.Add($"'{property.GetValue(instance)}'");
+            converted.Add(GetConvertedToSqlString(property.GetValue(instance)));
         }
         return converted;
+    }
+
+    private static string GetConvertedToSqlString(object? value)
+    {
+        if (value == null)
+            return "NULL";
+        
+        if (value is bool boolean)
+            return boolean ? "1" : "0";
+        else if (value is DateTime dateTime)
+        {
+            return string.Format("'{0}'", dateTime.ToString("dd/MM/yyyy").Replace('.', '/'));
+        }
+        return $"'{value}'";
     }
 
     private static string JoinParameters<T>(IEnumerable<T> parameters) => string.Join(',', parameters);
