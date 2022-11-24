@@ -125,7 +125,7 @@ namespace Server
                     AddValueToParameters(parameters, context.Request.Cookies, methodParameters, typeof(CookieRequiredAttribute));
                 if (methodParametersAttributesTypes.Any(x => x== typeof(SessionRequiredAttribute)))
                     AddValueToParameters(parameters, session, methodParameters, typeof(SessionRequiredAttribute));
-                var actionResult = await GetActionResultTaskFromMethod(
+                var actionResult = GetActionResultTaskFromMethod(
                     controller.GetConstructor(new Type[0]).Invoke(Array.Empty<object>()), method, parameters);
                 await actionResult.ExecuteResultAsync(context);
             }
@@ -156,7 +156,7 @@ namespace Server
         }
 
 
-        private Task<IActionResult> GetActionResultTaskFromMethod(object controller,
+        private IActionResult GetActionResultTaskFromMethod(object controller,
             MethodInfo method, Dictionary<string, object> parameters)
         {
 
@@ -164,7 +164,7 @@ namespace Server
                 .Select(p => Convert.ChangeType(parameters[p.Name], p.ParameterType))
                 .ToArray();
 
-            return (Task<IActionResult>)method.Invoke(controller, paramsIn);
+            return (IActionResult)method.Invoke(controller, paramsIn);
         }
         
         private Dictionary<string, object> GetParametersFromQuery(HttpListenerContext context)

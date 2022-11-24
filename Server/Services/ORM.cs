@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using DateTime = System.DateTime;
 
-namespace Server.Services.ServerServices;
+namespace Server.Services;
 
 public class ORM
 {
