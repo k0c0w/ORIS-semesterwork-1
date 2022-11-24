@@ -29,7 +29,7 @@ public class ProfileController
     [AuthorizeRequired]
     public async Task<IActionResult> EditUserPersonalInfo([FromQuery] string firstName,
         [FromQuery] string middleName, [FromQuery] string lastName, [FromQuery] string telephone, 
-        [FromQuery] string driverLicense, [FromQuery] string passport, [FromQuery] string card,
+        [FromQuery] string license, [FromQuery] string passport, [FromQuery] string card,
         [FromQuery] string cardOwner, [FromQuery] string cvc, [SessionRequired] Session userSession)
     {
         var badFields = new List<InputError>(9);
@@ -42,16 +42,16 @@ public class ProfileController
                 .Replace(")", "").Replace("+", "");
             telephone = telephone.Length > 0 ? telephone.Substring(1) : telephone;
             if(!FormFieldValidator.IsTelephoneNumberValid(telephone))
-                badFields.Add(new InputError(telephone, "Формат телефона: +7**********"));
+                badFields.Add(new InputError(nameof(telephone), "Формат телефона: +7**********"));
         }
         if(!string.IsNullOrEmpty(passport) && !FormFieldValidator.IsPassportValid(passport))
-            badFields.Add(new InputError(passport, "Не валидные данные."));
-        if(!string.IsNullOrEmpty(driverLicense) && !FormFieldValidator.IsDriverLicenseValid(driverLicense))
-            badFields.Add(new InputError(driverLicense, "Не валидные данные."));
+            badFields.Add(new InputError(nameof(passport), "Не валидные данные."));
+        if(!string.IsNullOrEmpty(license) && !FormFieldValidator.IsDriverLicenseValid(license))
+            badFields.Add(new InputError(nameof(license), "Не валидные данные."));
         if(!string.IsNullOrEmpty(card) && !(card.Length == 16 && Regex.IsMatch(card, @"^[0-9]+$")))
-            badFields.Add(new InputError(card, "Поддерживаются только карты с 16-ти значным номером."));
+            badFields.Add(new InputError(nameof(card), "Поддерживаются только карты с 16-ти значным номером."));
         if(!string.IsNullOrEmpty(cvc) && !(Regex.IsMatch(cvc, @"^[0-9][0-9][0-9]$") && cvc != "000"))
-            badFields.Add(new InputError(card, "Неверный CVV/CVC код"));
+            badFields.Add(new InputError(nameof(cvc), "Неверный CVV/CVC код"));
         
         if(badFields.Any())
             return ActionResultFactory.Json(new OperationResultDto() {Errors = badFields.ToArray()});
@@ -63,7 +63,7 @@ public class ProfileController
             LastName = string.IsNullOrEmpty(lastName) ? personalInfo.LastName : lastName,
             Passport = string.IsNullOrEmpty(passport) ? personalInfo.Passport : ulong.Parse(passport),
             TelephoneNumber = string.IsNullOrEmpty(telephone) ? personalInfo.TelephoneNumber : uint.Parse(telephone),
-            DriverLicense = string.IsNullOrEmpty(driverLicense) ? personalInfo.DriverLicense : int.Parse(driverLicense),
+            DriverLicense = string.IsNullOrEmpty(license) ? personalInfo.DriverLicense : int.Parse(license),
             CardNumber = string.IsNullOrEmpty(card) ? personalInfo.CardNumber : ulong.Parse(card),
             CardOwner = string.IsNullOrEmpty(cardOwner) ? personalInfo.CardOwner : cardOwner,
             CVC = string.IsNullOrEmpty(cvc) ? personalInfo.CVC : int.Parse(cvc),
@@ -81,19 +81,19 @@ public class ProfileController
         var user = GetUserBySession(userSession);
         
         if(string.IsNullOrEmpty(firstName))
-            badFields.Add(new InputError(firstName, "Поле с именем обязательно для заполнения!"));
+            badFields.Add(new InputError(nameof(firstName), "Поле с именем обязательно для заполнения!"));
         
         DateTime? date = DateTime.TryParse(birthDate, out var value) ? value : null;
         if (!date.HasValue)
-            badFields.Add(new InputError(date, "Неверный формат даты!"));
+            badFields.Add(new InputError(nameof(birthDate), "Неверный формат даты!"));
         else if (!FormFieldValidator.IsCorrectAge(date.Value))
-            badFields.Add(new InputError(date, "Вам должно быть не меньше 18 лет и не больше 90 лет."));
+            badFields.Add(new InputError(nameof(birthDate), "Вам должно быть не меньше 18 лет и не больше 90 лет."));
         
         email = email.Replace("%40", "@");
         if (!FormFieldValidator.IsEmailValid(email))
-            badFields.Add(new InputError(email, "Неверный формат почты!"));
+            badFields.Add(new InputError(nameof(email), "Неверный формат почты!"));
         else if(_orm.Select(new WhereModel<User>(new User() { Email = email })).Skip(1).Any())
-            badFields.Add(new InputError(email, "Данная почта уже кем-то используется!"));
+            badFields.Add(new InputError(nameof(email), "Данная почта уже кем-то используется!"));
         
         if(badFields.Any())
             return ActionResultFactory.Json(new OperationResultDto() {Errors = badFields.ToArray()});
@@ -140,7 +140,6 @@ public class ProfileController
     public async Task<IActionResult> Login([FromQuery] string? email, [FromQuery] string? password, 
         [CookieRequired] CookieCollection cookies)
     {
-        email = email.Replace("%40", "@");
         var sessionCookie = cookies["SessionId"]?.Value;
         var user = _orm.Select(new WhereModel<User>(new User() { Email = email, Password = password }))
             .FirstOrDefault();

@@ -3,11 +3,11 @@
     [AttributeUsage(AttributeTargets.Class)]
     public class ApiControllerAttribute : Attribute
     {
-        public readonly string ControllerName;
+        public readonly string ControllerRoute;
 
-        public ApiControllerAttribute(string controllerName)
+        public ApiControllerAttribute(string controllerRoute)
         {
-            ControllerName = controllerName;
+            ControllerRoute = controllerRoute;
         }
 
         public ApiControllerAttribute() : this("") { }

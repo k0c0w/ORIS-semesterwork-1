@@ -2,6 +2,8 @@
 using Server.Services.ServerServices;
 using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Web;
 using Server.Services.ServerServices.CustomExceptions;
 
 namespace Server
@@ -12,9 +14,15 @@ namespace Server
         public readonly int _port;
         readonly ILogger logger;
         readonly HttpListener listener = new HttpListener();
-        private readonly SessionManager _sessionManager = SessionManager.Instance;
         
-        public bool IsRunning { get; private set; }
+        private readonly SessionManager _sessionManager = SessionManager.Instance;
+
+        private static IEnumerable<ControllerInfo> _controllers = Assembly.GetExecutingAssembly().GetTypes()
+            .Select(type => (Class: type, Attribute: type.GetCustomAttribute<ApiControllerAttribute>()))
+            .Where(tuple => tuple.Attribute != null)
+            .Select(x => new ControllerInfo(x.Class, x.Attribute!))
+            .ToArray();
+
 
         public HttpServer(ILogger logger, ServerSettings settings)
         {
@@ -83,8 +91,7 @@ namespace Server
             var controllerRoute = tuple.Item1;
             var methodRoute = tuple.Item2;
 
-            var controllerType = typeof(ApiControllerAttribute);
-            var controller = GetRequiredController(controllerType, controllerRoute, Assembly.GetExecutingAssembly());
+            var controller = GetRequiredController(controllerRoute);
 
             if (controller == null)
             {
@@ -172,7 +179,7 @@ namespace Server
             {
                 using var body = context.Request.InputStream;
                 using var reader = new StreamReader(body, context.Request.ContentEncoding);
-                var parameters = reader.ReadToEnd();
+                var parameters = HttpUtility.UrlDecode(reader.ReadToEnd(), Encoding.UTF8);
                 keyValues = parameters
                     .Split("&", StringSplitOptions.RemoveEmptyEntries)
                     .Select(x =>
@@ -189,16 +196,12 @@ namespace Server
         }
 
 
-        private Type? GetRequiredController(Type controllerType, string controllerRoute, Assembly assembly)
+        private Type? GetRequiredController(string controllerRoute)
         {
-            return assembly.GetTypes()
-                                     .Select(type => (type, type.GetCustomAttribute(controllerType) as ApiControllerAttribute))
-                                     .Where(tuple =>
-                                            tuple.Item2 != null
-                                            && (string.IsNullOrEmpty(tuple.Item2.ControllerName)
-                                            ? tuple.Item1.Name.Replace("Controller", "") == controllerRoute
-                                            : tuple.Item2.ControllerName == controllerRoute))
-                                     .Select(tuple => tuple.Item1)
+            return _controllers.Where(x=> string.IsNullOrEmpty(x.Attribute.ControllerRoute)
+                                            ? x.Class.Name.Replace("Controller", "") == controllerRoute
+                                            : x.Attribute.ControllerRoute == controllerRoute)
+                                     .Select(x => x.Class)
                                      .FirstOrDefault();
         }
 
@@ -259,7 +262,7 @@ namespace Server
             if(!Directory.Exists(path))
                 return false;
 
-            var rawUrl = context.Request.RawUrl!.Replace("%20", " ");
+            var rawUrl = HttpUtility.UrlDecode(context.Request.RawUrl, Encoding.UTF8);
             var bufferExtensionTuple = FileProvider.GetFileAndFileExtension(path + rawUrl);
             var buffer = bufferExtensionTuple.Item1;
             var extension = bufferExtensionTuple.Item2;
