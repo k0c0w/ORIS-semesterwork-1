@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Server.Models;
 using Server.Services;
 using Server.Services.ServerServices;
@@ -14,10 +13,9 @@ public class ProfileController
     
     [HttpGet("edit")]
     [AuthorizeRequired]
-    public IActionResult GetProfileInfo([SessionRequired] Session userSession)
+    public IActionResult GetProfileInfo([UserRequired] User user)
     {
-        var user = GetUserBySession(userSession);
-        var info = _orm.Select(new WhereModel<PersonalInfo>(new PersonalInfo { UserId = userSession.AccountId }))
+        var info = _orm.Select(new WhereModel<PersonalInfo>(new PersonalInfo { UserId = user.Id }))
             .FirstOrDefault();
         
         return new TemplateView("ProfileEdit", 
@@ -30,10 +28,10 @@ public class ProfileController
     public IActionResult EditUserPersonalInfo([FromQuery] string firstName,
         [FromQuery] string middleName, [FromQuery] string lastName, [FromQuery] string telephone, 
         [FromQuery] string license, [FromQuery] string passport, [FromQuery] string card,
-        [FromQuery] string cardOwner, [FromQuery] string cvc, [SessionRequired] Session userSession)
+        [FromQuery] string cardOwner, [FromQuery] string cvc, [UserRequired] User user)
     {
         var badFields = new List<InputError>(9);
-        var personalInfo = _orm.Select(new WhereModel<PersonalInfo>(new PersonalInfo() { UserId = userSession.AccountId }))
+        var personalInfo = _orm.Select(new WhereModel<PersonalInfo>(new PersonalInfo() { UserId = user.Id }))
             .FirstOrDefault();
         
         if(!string.IsNullOrEmpty(telephone))
@@ -75,11 +73,10 @@ public class ProfileController
     [HttpPost("edit")]
     [AuthorizeRequired]
     public IActionResult EditUserInfo([FromQuery] string firstName,
-        [FromQuery] string email, [FromQuery] string birthDate, [SessionRequired] Session userSession)
+        [FromQuery] string email, [FromQuery] string birthDate, [UserRequired] User user)
     {
         var badFields = new List<InputError>(3);
-        var user = GetUserBySession(userSession);
-        
+
         if(string.IsNullOrEmpty(firstName))
             badFields.Add(new InputError(nameof(firstName), ErrorMessages.RequiredField));
         
@@ -109,14 +106,14 @@ public class ProfileController
 
     [HttpPost("edit/password")]
     [AuthorizeRequired]
-    public IActionResult ChangeUserPassword([FromQuery] string password, [SessionRequired] Session userSession)
+    public IActionResult ChangeUserPassword([FromQuery] string password, [UserRequired] User user, 
+        [SessionRequired] Session session)
     {
-        var userName = GetUserBySession(userSession)?.FirstName;
+        var userName = user?.FirstName;
         var errors = new List<string>(2);
         if(!FormFieldValidator.IsPasswordValid(password))
             errors.Add(ErrorMessages.PasswordShould);
-            
-        var user = GetUserBySession(userSession);
+        
         if(password == user.Password)
             errors.Add("Новый пароль совпадает с предыдущим!");
         if (!errors.Any())
@@ -124,7 +121,7 @@ public class ProfileController
             var updated = new User { Password = password };
             _orm.Update(updated, new WhereModel<User>(user));
             var newSession = new Session() { Id = Guid.NewGuid(), AccountId = (int)user.Id, CreateDateTime = DateTime.Now };
-            _sessionManager.TerminateSession(userSession);
+            _sessionManager.TerminateSession(session);
             _sessionManager.CreateQuickSession(newSession.Id, () => newSession);
 
             return ReturnTemplate(userName, Array.Empty<string>(), true);
@@ -135,13 +132,16 @@ public class ProfileController
     
     [HttpGet("edit/password")]
     [AuthorizeRequired]
-    public IActionResult ChangeUserPasswordPage([SessionRequired] Session session)
+    public IActionResult ChangeUserPasswordPage([UserRequired] User user)
     {
-        return ReturnTemplate(GetUserBySession(session)?.FirstName,Array.Empty<string>(), false);
+        return ReturnTemplate(user?.FirstName,Array.Empty<string>(), false);
     }
-
-    private User? GetUserBySession(Session userSession)
-        => _orm.Select(new WhereModel<User>(new User{ Id = userSession.AccountId })).FirstOrDefault();
+    
+    [HttpGet("getUserName")]
+    [AuthorizeRequired]
+    public IActionResult GetUserNameJson([UserRequired] User user) 
+        => ActionResultFactory.Json(new {name = user.FirstName});
+    
 
     private IActionResult ReturnTemplate(string name, string[] errors, bool isChanged)
     {

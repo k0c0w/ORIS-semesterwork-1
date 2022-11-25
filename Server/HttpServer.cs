@@ -4,6 +4,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using Server.Models;
 using Server.Services.ServerServices.CustomExceptions;
 
 namespace Server
@@ -14,6 +15,7 @@ namespace Server
         public readonly int _port;
         readonly ILogger logger;
         readonly HttpListener listener = new HttpListener();
+        private readonly ORM _orm = new ORM();
         
         private readonly SessionManager _sessionManager = SessionManager.Instance;
 
@@ -123,6 +125,8 @@ namespace Server
 
                 if (methodParametersAttributesTypes.Any(x => x == typeof(CookieRequiredAttribute)))
                     AddValueToParameters(parameters, context.Request.Cookies, methodParameters, typeof(CookieRequiredAttribute));
+                if (methodParametersAttributesTypes.Any(x => x== typeof(UserRequiredAttribute)))
+                    AddValueToParameters(parameters, GetUserBySession(session), methodParameters, typeof(UserRequiredAttribute));
                 if (methodParametersAttributesTypes.Any(x => x== typeof(SessionRequiredAttribute)))
                     AddValueToParameters(parameters, session, methodParameters, typeof(SessionRequiredAttribute));
                 var actionResult = GetActionResultTaskFromMethod(
@@ -278,5 +282,8 @@ namespace Server
         }
         
         private static string? RemoveSlashes(string? input) => input?.Replace("/", string.Empty);
+        
+        private User? GetUserBySession(Session userSession)
+            => _orm.Select(new WhereModel<User>(new User{ Id = userSession.AccountId })).FirstOrDefault();
     }
 }
