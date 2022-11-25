@@ -11,7 +11,6 @@ public class AuthController
     private ORM _orm = new ORM();
     private SessionManager _sessionManager = SessionManager.Instance;
     
-
     [HttpPost("login")]
     public IActionResult Login([FromQuery] string email, [FromQuery] string password, [FromQuery] bool rememberMe,
         [CookieRequired] CookieCollection cookies)
@@ -45,7 +44,7 @@ public class AuthController
             }
         }
 
-        return new Unauthorized();
+        return new HtmlResult("Не авторизован");
     }
 
 
