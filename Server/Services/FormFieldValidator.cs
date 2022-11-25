@@ -15,8 +15,7 @@ public static class FormFieldValidator
 
     public static bool IsTelephoneNumberValid(string telephone)
     {
-        if (telephone.Length != 9) return false;
-        return Regex.IsMatch(telephone, "^[0-9]{9}$");
+        return Regex.IsMatch(telephone, "^[0-9]{10}$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(30d));
     }
 
     public static bool IsPassportValid(string passport)

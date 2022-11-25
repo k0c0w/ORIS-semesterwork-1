@@ -2,6 +2,9 @@
 using Server.Services.ServerServices;
 using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Web;
+using Server.Models;
 using Server.Services.ServerServices.CustomExceptions;
 
 namespace Server
@@ -12,9 +15,16 @@ namespace Server
         public readonly int _port;
         readonly ILogger logger;
         readonly HttpListener listener = new HttpListener();
-        private readonly SessionManager _sessionManager = SessionManager.Instance;
+        private readonly ORM _orm = new ORM();
         
-        public bool IsRunning { get; private set; }
+        private readonly SessionManager _sessionManager = SessionManager.Instance;
+
+        private static IEnumerable<ControllerInfo> _controllers = Assembly.GetExecutingAssembly().GetTypes()
+            .Select(type => (Class: type, Attribute: type.GetCustomAttribute<ApiControllerAttribute>()))
+            .Where(tuple => tuple.Attribute != null)
+            .Select(x => new ControllerInfo(x.Class, x.Attribute!))
+            .ToArray();
+
 
         public HttpServer(ILogger logger, ServerSettings settings)
         {
@@ -56,18 +66,13 @@ namespace Server
             try
             {
                 await GiveContextToControllerByRouteIfExists(context);
+                logger.Log($"\n{request.ProtocolVersion} {request.HttpMethod} {request.Url} {context.Response.StatusCode}\n");
             }
-            catch
+            catch(Exception exception)
             {
                 logger.Log($"Can not handle request {context.Request.Url}");
-                context.Response
-                    .Write404PageToBody()
-                    .SetStatusCode((int)HttpStatusCode.NotFound)
-                    .SetContentType(".html")
-                    .Close();
+                new ExceptionHandler().Handle((dynamic)exception, context.Response);
             }
-
-            logger.Log($"\n{request.ProtocolVersion} {request.HttpMethod} {request.Url} {context.Response.StatusCode}\n");
         }
 
         private async Task GiveContextToControllerByRouteIfExists(HttpListenerContext context)
@@ -83,12 +88,11 @@ namespace Server
             var controllerRoute = tuple.Item1;
             var methodRoute = tuple.Item2;
 
-            var controllerType = typeof(ApiControllerAttribute);
-            var controller = GetRequiredController(controllerType, controllerRoute, Assembly.GetExecutingAssembly());
+            var controller = GetRequiredController(controllerRoute);
 
             if (controller == null)
             {
-                await ActionResultFactory.NotFound().ExecuteResultAsync(context);
+                await new NotFound().ExecuteResultAsync(context);
                 return;
             }
             
@@ -102,7 +106,7 @@ namespace Server
 
             if (method == null)
             {
-                await ActionResultFactory.NotFound().ExecuteResultAsync(context);
+                await new NotFound().ExecuteResultAsync(context);
                 return;
             }
 
@@ -116,13 +120,19 @@ namespace Server
 
                 if (methodParametersAttributesTypes.Any(x => x == typeof(CookieRequiredAttribute)))
                     AddValueToParameters(parameters, context.Request.Cookies, methodParameters, typeof(CookieRequiredAttribute));
+                if (methodParametersAttributesTypes.Any(x => x== typeof(UserRequiredAttribute)))
+                    AddValueToParameters(parameters, GetUserBySession(session), methodParameters, typeof(UserRequiredAttribute));
                 if (methodParametersAttributesTypes.Any(x => x== typeof(SessionRequiredAttribute)))
                     AddValueToParameters(parameters, session, methodParameters, typeof(SessionRequiredAttribute));
-                var actionResult = await GetActionResultTaskFromMethod(
+                
+                if (methodParameters.Any(x => !parameters.ContainsKey(x.Name)))
+                    throw new MethodNotFoundException();
+                
+                var actionResult = GetActionResultTaskFromMethod(
                     controller.GetConstructor(new Type[0]).Invoke(Array.Empty<object>()), method, parameters);
                 await actionResult.ExecuteResultAsync(context);
             }
-            else await ActionResultFactory.Unauthorized().ExecuteResultAsync(context);
+            else await new Unauthorized().ExecuteResultAsync(context);
         }
         
         private void AddValueToParameters<T>(Dictionary<string, object> parameters, 
@@ -149,15 +159,14 @@ namespace Server
         }
 
 
-        private Task<IActionResult> GetActionResultTaskFromMethod(object controller,
+        private IActionResult GetActionResultTaskFromMethod(object controller,
             MethodInfo method, Dictionary<string, object> parameters)
         {
 
             var paramsIn = method.GetParameters()
                 .Select(p => Convert.ChangeType(parameters[p.Name], p.ParameterType))
                 .ToArray();
-
-            return (Task<IActionResult>)method.Invoke(controller, paramsIn);
+            return (IActionResult)method.Invoke(controller, paramsIn);
         }
         
         private Dictionary<string, object> GetParametersFromQuery(HttpListenerContext context)
@@ -172,7 +181,7 @@ namespace Server
             {
                 using var body = context.Request.InputStream;
                 using var reader = new StreamReader(body, context.Request.ContentEncoding);
-                var parameters = reader.ReadToEnd();
+                var parameters = HttpUtility.UrlDecode(reader.ReadToEnd(), Encoding.UTF8);
                 keyValues = parameters
                     .Split("&", StringSplitOptions.RemoveEmptyEntries)
                     .Select(x =>
@@ -189,16 +198,12 @@ namespace Server
         }
 
 
-        private Type? GetRequiredController(Type controllerType, string controllerRoute, Assembly assembly)
+        private Type? GetRequiredController(string controllerRoute)
         {
-            return assembly.GetTypes()
-                                     .Select(type => (type, type.GetCustomAttribute(controllerType) as ApiControllerAttribute))
-                                     .Where(tuple =>
-                                            tuple.Item2 != null
-                                            && (string.IsNullOrEmpty(tuple.Item2.ControllerName)
-                                            ? tuple.Item1.Name.Replace("Controller", "") == controllerRoute
-                                            : tuple.Item2.ControllerName == controllerRoute))
-                                     .Select(tuple => tuple.Item1)
+            return _controllers.Where(x=> string.IsNullOrEmpty(x.Attribute.ControllerRoute)
+                                            ? x.Class.Name.Replace("Controller", "") == controllerRoute
+                                            : x.Attribute.ControllerRoute == controllerRoute)
+                                     .Select(x => x.Class)
                                      .FirstOrDefault();
         }
 
@@ -259,7 +264,7 @@ namespace Server
             if(!Directory.Exists(path))
                 return false;
 
-            var rawUrl = context.Request.RawUrl!.Replace("%20", " ");
+            var rawUrl = HttpUtility.UrlDecode(context.Request.RawUrl, Encoding.UTF8);
             var bufferExtensionTuple = FileProvider.GetFileAndFileExtension(path + rawUrl);
             var buffer = bufferExtensionTuple.Item1;
             var extension = bufferExtensionTuple.Item2;
@@ -275,5 +280,12 @@ namespace Server
         }
         
         private static string? RemoveSlashes(string? input) => input?.Replace("/", string.Empty);
+
+        private User? GetUserBySession(Session? userSession)
+        {
+            if (userSession == null)
+                return null;
+            return _orm.Select(new WhereModel<User>(new User{ Id = userSession.AccountId })).FirstOrDefault();
+        }
     }
 }
