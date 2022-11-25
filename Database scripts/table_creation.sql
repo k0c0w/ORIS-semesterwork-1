@@ -15,6 +15,8 @@ CREATE TABLE CustomersQuestions (
 	Question varchar(5000) NOT NULL,
 	ResponseEmail varchar(254) NOT NULL,
 	StatusCode INT NOT NULL DEFAULT(1),
+	Name varchar(50) not null,
+	Telephone varchar(10) not null,
 	CONSTRAINT fk_statusCode FOREIGN KEY(StatusCode) REFERENCES  QuestionsStatus(Status),
 )
 
