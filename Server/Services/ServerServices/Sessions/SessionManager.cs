@@ -18,19 +18,30 @@ public class SessionManager
         return _cache.TryGetValue(key, out _);
     }
 
-    public void CreateSession(object key, Func<Session> createSession)
+    private void CreateSession(object key, Func<Session> createSession, MemoryCacheEntryOptions options)
     {
         if (!_cache.TryGetValue(key, out var cacheEntry))
         {
-            lock(_lock) 
+            lock(_lock)
             {
                 if (!_cache.TryGetValue(key, out cacheEntry))
-                    _cache.Set(key, createSession(),
-                        new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2)));
+                    _cache.Set(key, createSession(), options);
             }
         }
     }
 
+    public void CreateQuickSession(object key, Func<Session> createSession)
+    {
+        CreateSession(key, createSession, 
+            new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2)));
+    }
+
+    public void CreateLongSession(object key, Func<Session> createSession)
+    {
+        CreateSession(key, createSession, 
+            new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10)));
+    }
+    
     public bool TryGetSession(object key, out Session? session)
     {
         return _cache.TryGetValue(key, out session);

@@ -14,7 +14,7 @@ public class ProfileController
     
     [HttpGet("edit")]
     [AuthorizeRequired]
-    public async Task<IActionResult> GetProfileInfo([SessionRequired] Session userSession)
+    public IActionResult GetProfileInfo([SessionRequired] Session userSession)
     {
         var user = GetUserBySession(userSession);
         var info = _orm.Select(new WhereModel<PersonalInfo>(new PersonalInfo { UserId = userSession.AccountId }))
@@ -27,7 +27,7 @@ public class ProfileController
     
     [HttpPost("edit")]
     [AuthorizeRequired]
-    public async Task<IActionResult> EditUserPersonalInfo([FromQuery] string firstName,
+    public IActionResult EditUserPersonalInfo([FromQuery] string firstName,
         [FromQuery] string middleName, [FromQuery] string lastName, [FromQuery] string telephone, 
         [FromQuery] string license, [FromQuery] string passport, [FromQuery] string card,
         [FromQuery] string cardOwner, [FromQuery] string cvc, [SessionRequired] Session userSession)
@@ -74,26 +74,25 @@ public class ProfileController
     
     [HttpPost("edit")]
     [AuthorizeRequired]
-    public async Task<IActionResult> EditUserInfo([FromQuery] string firstName,
+    public IActionResult EditUserInfo([FromQuery] string firstName,
         [FromQuery] string email, [FromQuery] string birthDate, [SessionRequired] Session userSession)
     {
         var badFields = new List<InputError>(3);
         var user = GetUserBySession(userSession);
         
         if(string.IsNullOrEmpty(firstName))
-            badFields.Add(new InputError(nameof(firstName), "Поле с именем обязательно для заполнения!"));
+            badFields.Add(new InputError(nameof(firstName), ErrorMessages.RequiredField));
         
         DateTime? date = DateTime.TryParse(birthDate, out var value) ? value : null;
         if (!date.HasValue)
-            badFields.Add(new InputError(nameof(birthDate), "Неверный формат даты!"));
+            badFields.Add(new InputError(nameof(birthDate), ErrorMessages.IncorrectDateFormat));
         else if (!FormFieldValidator.IsCorrectAge(date.Value))
-            badFields.Add(new InputError(nameof(birthDate), "Вам должно быть не меньше 18 лет и не больше 90 лет."));
+            badFields.Add(new InputError(nameof(birthDate), ErrorMessages.IncorrectAge));
         
-        email = email.Replace("%40", "@");
         if (!FormFieldValidator.IsEmailValid(email))
-            badFields.Add(new InputError(nameof(email), "Неверный формат почты!"));
+            badFields.Add(new InputError(nameof(email), ErrorMessages.IncorrectEmailFormat));
         else if(_orm.Select(new WhereModel<User>(new User() { Email = email })).Skip(1).Any())
-            badFields.Add(new InputError(nameof(email), "Данная почта уже кем-то используется!"));
+            badFields.Add(new InputError(nameof(email), ErrorMessages.EmailAlreadyUsed));
         
         if(badFields.Any())
             return ActionResultFactory.Json(new OperationResultDto() {Errors = badFields.ToArray()});
@@ -110,62 +109,48 @@ public class ProfileController
 
     [HttpPost("edit/password")]
     [AuthorizeRequired]
-    public async Task<IActionResult> ChangeUserPassword([FromQuery] string password, [SessionRequired] Session userSession)
+    public IActionResult ChangeUserPassword([FromQuery] string password, [SessionRequired] Session userSession)
     {
+        var userName = GetUserBySession(userSession)?.FirstName;
+        var errors = new List<string>(2);
         if(!FormFieldValidator.IsPasswordValid(password))
-            return ActionResultFactory.Json(new OperationResultDto() {Errors = new[] 
-                    {new InputError("", "Пароль должен состоять из цифр и латинских символов (от 5 до 50).")}});
+            errors.Add(ErrorMessages.PasswordShould);
+            
         var user = GetUserBySession(userSession);
         if(password == user.Password)
-            return ActionResultFactory.Json(new OperationResultDto() 
-                {Errors = new[] {new InputError("", "Новый пароль совпадает с предыдущим!") }});
-        
-        var updated = new User() { Password = password };
-        _orm.Update(updated, new WhereModel<User>(user));
-        var newSession = new Session() { Id = Guid.NewGuid(), AccountId = (int)user.Id, CreateDateTime = DateTime.Now };
-        _sessionManager.TerminateSession(userSession);
-        _sessionManager.CreateSession(newSession.Id, () => newSession);
-        
-        return ActionResultFactory.Json(new OperationResultDto() {Success = true});
+            errors.Add("Новый пароль совпадает с предыдущим!");
+        if (!errors.Any())
+        {
+            var updated = new User { Password = password };
+            _orm.Update(updated, new WhereModel<User>(user));
+            var newSession = new Session() { Id = Guid.NewGuid(), AccountId = (int)user.Id, CreateDateTime = DateTime.Now };
+            _sessionManager.TerminateSession(userSession);
+            _sessionManager.CreateQuickSession(newSession.Id, () => newSession);
+
+            return ReturnTemplate(userName, Array.Empty<string>(), true);
+        }
+
+        return ReturnTemplate(userName, errors.ToArray(), false);
     }
     
     [HttpGet("edit/password")]
     [AuthorizeRequired]
-    public async Task<IActionResult> ChangeUserPasswordPage()
+    public IActionResult ChangeUserPasswordPage([SessionRequired] Session session)
     {
-        return new TemplateView("PasswordChangePage", new { });
+        return ReturnTemplate(GetUserBySession(session)?.FirstName,Array.Empty<string>(), false);
     }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromQuery] string? email, [FromQuery] string? password, 
-        [CookieRequired] CookieCollection cookies)
-    {
-        var sessionCookie = cookies["SessionId"]?.Value;
-        var user = _orm.Select(new WhereModel<User>(new User() { Email = email, Password = password }))
-            .FirstOrDefault();
-        if (user != null)
-        {
-            var guid = Guid.Empty;
-            var correctCookie = string.IsNullOrEmpty(sessionCookie) || Guid.TryParse(sessionCookie, out guid);
-            if (correctCookie)
-            {
-                if (!_sessionManager.TryGetSession(guid, out var session) || session!.AccountId != user.Id)
-                {
-                    guid = Guid.NewGuid();
-                    _sessionManager.CreateSession(guid,
-                        () => new Session() { Id = guid, AccountId = (int)user.Id, CreateDateTime = DateTime.Now });
-                    return ActionResultFactory.SendHtml("true", 
-                        new SessionInfo() { Guid = guid });
-                }
-                
-                return ActionResultFactory.SendHtml("true", 
-                        new SessionInfo() { Guid = session.Id });
-            }
-        }
-
-        return ActionResultFactory.Unauthorized();
-    }
-    
     private User? GetUserBySession(Session userSession)
         => _orm.Select(new WhereModel<User>(new User{ Id = userSession.AccountId })).FirstOrDefault();
+
+    private IActionResult ReturnTemplate(string name, string[] errors, bool isChanged)
+    {
+        return new TemplateView("PasswordChangePage", 
+            new
+            {
+                name = name,
+                errors = errors,
+                success = isChanged,
+            });
+    }
 }

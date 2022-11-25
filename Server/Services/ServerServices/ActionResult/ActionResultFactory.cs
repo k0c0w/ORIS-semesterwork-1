@@ -60,7 +60,11 @@ public class HtmlResult : IActionResult
                 .SetContentType(".html");
             if (_sessionInfo != null)
             {
-                response.Cookies.Add(new Cookie("SessionId", $"{_sessionInfo.Guid}"));
+                var cookie = new Cookie { Name = "SessionId", Value = $"{_sessionInfo.Guid}", Path = "/" };
+                if(_sessionInfo.LongLife)
+                    cookie.Expires = DateTime.Now.Add( TimeSpan.FromDays(180));
+                
+                response.Cookies.Add(cookie);
             }
 
             await response.WriteToBodyAsync(_htmlBytes);
