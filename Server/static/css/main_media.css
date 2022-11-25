@@ -1,0 +1,83 @@
+@media only screen and (max-width: 1400px)
+.container {
+    max-width: 1216px;
+}
+
+@media only screen and (max-width: 1600px)
+.container {
+    max-width: 1456px;
+}
+
+@media only screen and (max-width: 767px)
+.container {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+
+@media (max-width: 1400px)
+.tittle {
+    font-size: 85px;
+    line-height: 84px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 1400px)
+.subtittle {
+    font-size: 24px;
+    line-height: 32px;
+    margin-bottom: 72px;
+}
+
+@media (max-width: 767px)
+.questions-inner {
+    display: block;
+}
+
+@media (max-width: 900px)
+.questions-tittles {
+    width: 350px;
+}
+
+@media (max-width: 1400px)
+.questions-tittle {
+    font-size: 40px;
+    line-height: 40px;
+    max-width: 460px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 1400px)
+.questions-subtittle {
+    font-size: 16px;
+    line-height: 18px;
+}
+
+@media only screen and (max-width: 1262px)
+.form-section-footer {
+    flex-wrap: wrap;
+}
+
+@media only screen and (max-width: 1262px)
+.form-section-footer .button-submit {
+    margin-top: 32px;
+}
+
+@media screen and (min-width: 1900px)
+.hea-content { width: 100%; }
+
+@media (max-width: 1100px)
+.header-content-menu {
+  display: none;
+}
+
+@media (max-width: 1200px)
+.mobile-menu {
+    display: inline-flex;
+    position: relative;
+}
+
+@media (max-width: 1200px)
+.frame {
+    padding-top: 72px;
+}

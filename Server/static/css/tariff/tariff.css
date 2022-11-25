@@ -1,0 +1,157 @@
+.tariff .main {
+    height: 100vh;
+    background-size: cover;
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.tariff .main .container {
+    position: relative;
+    height: 100%;
+}
+
+.tariff .everyday-screen {
+  background-image: url(../../images/tariff/bg-everyday.jpg);
+}
+
+.tariff .tittle {
+    font-size: 160px;
+    line-height: 158px;
+    letter-spacing: .01em;
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.tariff .subtittle {
+    font-size: 30px;
+    line-height: 33px;
+    margin-bottom: 50px;
+    color: #fff;
+}
+
+.tariff .main-info {
+    position: relative;
+}
+
+.tariff .cars-head {
+    margin-bottom: 60px;
+}
+
+.tariff .cars-tittle {
+    color: #191818;
+    max-width: 500px;
+    font-size: 50px;
+    line-height: 1;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+.tariff .cars-desc {
+    max-width: 536px;
+    font-size: 22px;
+    line-height: 32px;
+    color: #191818;
+}
+
+.tariff .cars {
+    background-color: #f4fcfd;
+    padding-top: 74px;
+    padding-bottom: 112px;
+}
+
+.tariff .cars-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cars-outer {
+    width: 100%;
+}
+
+.cars-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 16px;
+  margin-bottom: 112px;
+}
+
+.car-card {
+  padding: 8px 8px 0 8px;
+}
+
+.cars-list-item:not(:last-child) {
+    margin-bottom: 16px;
+}
+
+
+.cars-item-pic {
+    width: 506px;
+    margin: 0 auto 23px;
+}
+
+.cars-item-info {
+  display: flex;
+  margin-bottom: 38px;
+}
+
+.card-button-container {
+  margin-left: auto;
+  margin-bottom: 20px;
+  bottom: 0;
+  position: absolute;
+}
+
+.advantages-cards {
+  grid-template-columns: 1fr 1fr;
+  display: grid;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.advantages-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+}
+
+.tariff .advantages-card-top {
+    width: 240px;
+    height: 240px;
+    background-color: #ddf5f8;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 48px;
+}
+
+.advantages-card-bottom {
+    max-width: 235px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.advantages-card-title {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 22px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    color: #191818;
+}
+
+.tariff .advantages-card-text {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(25,24,24,.4);
+}
+
+.tariff .advantages-card-top img {
+    max-width: 52%;
+    max-height: 52%;
+}

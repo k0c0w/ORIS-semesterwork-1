@@ -1,0 +1,74 @@
+.userinfo {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.notverified {
+  text-align: center;
+  font-weight: lighter;
+  font-style: oblique;
+  opacity: 60%;
+  font-family: Simphson;
+}
+
+.triangle-box{
+  display: inline-block;
+}
+
+.triangle {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+}
+
+
+.triangle-rotate {
+  transform: rotate(180deg);
+}
+
+.addition-information {
+  display: none;
+}
+
+.addition-information.show{
+  display: block;
+}
+
+.line {
+  height: 1px;
+  width: 100%;
+  border-bottom: 2px solid #e3e3e3ad;
+  margin-bottom: 8px;
+}
+
+#openAddition {
+  display: block;
+}
+
+#openAddition:hover {
+  text-shadow: #FC0 1px 0 10px;
+}
+
+.addition {
+  margin-bottom: 10px
+}
+
+
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.change-password {
+  display: inline-block;
+  align-content: center;
+  color: blue;
+  
+}
+
+.questions-form-error {
+display: block;
+}

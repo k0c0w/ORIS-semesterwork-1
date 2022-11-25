@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main_media.css">
+    <link rel="stylesheet" href="css/common.css">
+    <script type="text/javascript" src="/js/commonFunctions.js"></script>
+    <script type="text/javascript" src="/js/main/main.js"></script>
+    <title>Drive</title>
+  </head>
+  <body class="main">
+    <header class="header fixed" id="header">
+      <div class="container container-header header-content">
+        <div class="header-content-left">
+          <div class="header-support">
+            <div class="header-support-text">24/7, без выходных</div>
+            <a class="header-support-phone" href="tel:88005510121">8 800 551-01-21</a>
+          </div>
+        </div>
+        <ul class="header-content-menu">
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/#tariffs">Тарифы</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/help/">Помощь</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/documents/">Документы</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/city">Города</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/loyalty">Программа лояльности</a></li>
+        </ul>
+        <a class ="logo" id="login" href="/login">Войти</a>
+        <div class="mobile-menu">
+          <svg class="burger" width="25" height="18" viewBox="0 0 25 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="25" height="2" rx="1" fill="white"></rect>
+            <rect y="8" width="25" height="2" rx="1" fill="white"></rect>
+            <rect y="16" width="25" height="2" rx="1" fill="white"></rect>
+          </svg>
+          <svg class="close" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <use xlink:href="#close"></use>
+          </svg>
+        </div>
+      </div>
+      <div class="mobile-menu-content">
+        <!-- сделать бургер меню-->
+      </div>
+    </header>
+    <section class="greeting greeting-screen frame">
+      <div class="container">
+        <div class="greeting-content">
+          <div class="greeting-content-info">
+            <div class="main-info">
+              <div class="banner">
+                <h1 class="tittle">
+                  <span>Drive</span>
+                </h1>
+                <h2 class="subtittle">
+                  <span>Онлайн‑сервис аренды автомобиля</span>
+                </h2>
+              </div>
+              <div class="greeting-buttons">
+                <div class="button">
+                  <a href="#tariffs">Арендовать машину</a>
+                </div>
+                <div class="button">
+                  <a href="#question">Задать вопрос</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="frame" style="background-color:#10b5dc" id="tariffs">
+      <div class="container">
+        <div class="main-tariffs-circles">
+          <a href="tariff/travel" class="main-tariff-circle" data-circle="travel">
+            <h2 class="main-tariffs-circle-title">Travel</h2>
+            <p class="main-tariffs-circle-text">Подписка на 1 месяц</p>
+            <img class="main-tariffs-circle-img" src="/images/main/next.svg" alt="">
+          </a>
+          <a href="tariff/everyday" class="main-tariff-circle" data-circle="everyday">
+            <h2 class="main-tariffs-circle-title">Everyday</h2>
+            <p class="main-tariffs-circle-text">Посуточная аренда на срок до месяца</p>
+          </a>
+          <a href="tariff/whatever" class="main-tariff-circle" data-circle="whatever">
+            <h2 class="main-tariffs-circle-title">Whatever</h2>
+            <p class="main-tariffs-circle-text">Подписка от года</p>
+          </a>
+        </div>
+      </div>
+    </section>
+    <section class="question frame" id="question">
+      <div class="container">
+        <div class="questions-inner">
+          <div>
+            <h2 class="questions-tittle">У вас остались вопросы?</h2>
+            <h3 class="questions-subtittle">Напишите нам.</h3>
+          </div>
+          <form class="questions-form" action="/help/question" id="question-form" method="POST">
+            <div>
+              <div class="questions-form-field">
+                <input id = "question-name" class="questions-form-input form-input" type="text" name="name" placeholder="Ваше имя" data-required="true">
+                <p class="questions-form-error">Укажите ваше имя</p>
+              </div>
+              <div class="questions-form-field">
+                <input id="question-phone" class="questions-form-input form-input form-mask" type="tel" name="phone" placeholder="+7" data-required="true">
+                <p class="questions-form-error">Укажите ваш телефон</p>
+              </div>
+              <div class="questions-form-field">
+                <input id="question-email" class="questions-form-input form-input" type="email" name="email" placeholder="Email" data-required="true">
+                <p class="questions-form-error">Неверный формат</p>
+              </div>
+              <div class="questions-form-field questions-form-field-textarea">
+                <textarea  id="question-text" class="questions-form-input questions-form-textarea form-input" name="textarea" placeholder="Сообщение"></textarea>
+                <p class="questions-form-error">Введите текст сообщения</p>
+              </div>
+              <div class="form-section-footer">
+                <label class="form-accept">
+		              <input id="question-agreement" type="checkbox" name="accept">
+                  <div class="form-accept-description">Я согласен с<a href="#">&nbsp;правилами&nbsp;</a>обработки персональных данных</div>
+                </label>
+                <div class="button-submit"><button class="button button-link" type="submit" data-form="question">Задать вопрос</button></div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

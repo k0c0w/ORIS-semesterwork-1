@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/profile/profile.css">
+    <script type="text/javascript" src="../js/profile/profile.js"></script>
+    <title>Профиль</title>
+  </head>
+  <body>
+    <header class="header fixed" id="header">
+      <div class="container container-header header-content">
+        <div class="header-content-left">
+          <div class="header-support">
+            <div class="header-support-text">24/7, без выходных</div>
+            <a class="header-support-phone" href="tel:88005510121">8 800 551-01-21</a>
+          </div>
+        </div>
+        <ul class="header-content-menu">
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/#tariffs">Тарифы</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/help/">Помощь</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/documents/">Документы</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/city">Города</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/loyalty">Программа лояльности</a></li>
+        </ul>
+        <a class ="logo" id="login" href="#">{{user.first_name}}</a>
+        <div class="mobile-menu">
+          <svg class="burger" width="25" height="18" viewBox="0 0 25 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="25" height="2" rx="1" fill="white"></rect>
+            <rect y="8" width="25" height="2" rx="1" fill="white"></rect>
+            <rect y="16" width="25" height="2" rx="1" fill="white"></rect>
+          </svg>
+          <svg class="close" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <use xlink:href="#close"></use>
+          </svg>
+        </div>
+      </div>
+    </header>
+    <div class="profile-header-indent">
+    </div>
+    <section class = "frame">
+      <h2 class="notverified">Заполните все поля для подтверждения профиля</h2>
+      <div class="userinfo container">
+        <form class="questions-form" id="main-form">
+          <div class="form-header">
+            <h2>Мой профиль</h2>
+            <a class="change-password" href="../profile/edit/password">[изменить пароль]</a>
+          </div>
+          <div>
+            <div>
+              <label for="name">Имя</label>
+              <div class="questions-form-field" id="name">
+                <input class="questions-form-input form-input" id = "firstName" type="text" name="firstName" value="{{user.first_name}}" placeholder="Иван" data-required="true">
+              </div>
+            </div>
+            <label for="email-field">Электронная почта</label>
+            <div class="questions-form-field"  id="email-field">
+              <input class="questions-form-input form-input" type="email" id="email" name="email" placeholder="Email" data-required="true" value="{{user.email}}">
+            </div>
+          </div>
+          <div>
+            <label for="">Дата рождения</label>
+            <div class="questions-form-field">
+              <input class="questions-form-input form-input" type="date" id="birthDate" name="birthDate" value="{{date.to_string user.birth_date '%Y-%m-%d'}}">
+            </div>
+          </div>
+          <div class="addition">
+            <div class="line"> </div>
+            <a href="#" id="openAddition">
+              <span>Персональная информация</span>
+              <div class="triangle-box">
+                <svg id="triangle" class ="triangle triangle-rotate" xmlns="http://www.w3.org/2000/svg" version="1.0" width="1280.000000pt" height="1066.000000pt" viewBox="0 0 1280.000000 1066.000000" preserveAspectRatio="xMidYMid meet">
+                  <g transform="translate(0.000000,1066.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                    <path d="M6240 10651 c-135 -26 -258 -90 -361 -190 -65 -63 -115 -144 -952 -1551 -486 -817 -1786 -3002 -2890 -4857 -1887 -3170 -2008 -3376 -2022 -3443 -27 -129 -11 -279 40 -381 38 -75 126 -163 198 -199 l60 -30 6016 0 c5980 0 6016 0 6086 20 114 32 187 74 249 140 127 138 170 338 102 484 -13 28 -461 776 -996 1661 -1621 2683 -2239 3706 -3590 5945 -1417 2347 -1334 2219 -1487 2309 -134 80 -318 117 -453 92z"/>
+                  </g>
+                </svg>
+              </div>
+            </a>
+            <div class="addition-information" id="personalinfo">
+              <div>
+                <label for="lastName-field">Фамилия</label>
+                <div class="questions-form-field" id="lastName-field">
+                  <input class="questions-form-input form-input form-mask" type="text" id="lastName" name="lastName" placeholder="Иванов" data-required="true" value="{{personal_info.last_name}}">
+                </div>
+              </div>
+              <div>
+                <label for="middleName-field">Отчество</label>
+                <div class="questions-form-field" id="middleName-field">
+                  <input class="questions-form-input form-input form-mask" type="text" id="middleName" name="middleName" placeholder="Иванович" data-required="true" value="{{personal_info.middle_name}}">
+                </div>
+              </div>
+              <div>
+                <label for="tel-field">Номер телефона</label>
+                <div class="questions-form-field" id="tel-field">
+                  <input class="questions-form-input form-input form-mask" type="tel" id="telephone" name="telephone" placeholder="Например, +79005558324" data-required="true" value="{{personal_info.telephone_number}}">
+                </div>
+              </div>
+              <div>
+                <label for="passport-field">Серия и номер паспорта</label>
+                <div class="question-form-field" id = "passport-field">
+                    <input class="questions-form-input form-input" type="number" name="passport" id ="passport" value="{{personal_info.passport}}" class="questions-form-input" placeholder="Например, 9217181511">
+                </div>
+              </div>
+              <div>
+                <label for="license-field">Номер водительского удостоверения</label>
+                <div class="question-form-field" id = "license-field">
+                    <input class="questions-form-input form-input" type="number" name="license" id ="license" value="{{personal_info.driver_license}}" class="questions-form-input"  placeholder="Например, 231">
+                </div>
+              </div>
+              <div>
+                <label for="card-field">Номер банковской карты</label>
+                <div class="question-form-field" id = "card-field">
+                    <input class="questions-form-input form-input" type="number" name="card" id ="card" value="{{personal_info.card}}" class="questions-form-input"  placeholder="Например, 4988888888889999">
+                </div>
+              </div>
+              <div>
+                <label for="owner-field">Имя владельца</label>
+                <div class="question-form-field" id = "owner-field">
+                    <input class="questions-form-input form-input" type="text" name="cardOwner" id ="cardOwner" value="{{personal_info.card_owner}}" class="questions-form-input" placeholder="Например, IVANOV IVAN">
+                </div>
+              </div>
+              <div>
+                <label for="cvc-field">CVC/CVV</label>
+                <div class="question-form-field" id = "cvc-field">
+                    <input class="questions-form-input form-input" type="number" name="cvc" id ="cvc" value="{{personal_info.cvc}}" class="questions-form-input" placeholder="Например, 498">
+                </div>
+              </div>
+            </div>
+          </div>
+            <div class="form-section-footer">
+              <div class="button-submit">
+
+                <button class="button button-link js-btn-main gtm_fam_click_first" type="submit">Сохранить</button>
+              </div>
+            </div>
+        </form>
+
+      </div>
+    </section>
+  </body>
+</html>

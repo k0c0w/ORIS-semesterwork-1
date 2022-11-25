@@ -1,0 +1,235 @@
+@media (max-width: 1200px)
+.tariff .main {
+    height: calc(100vh - 72px);
+}
+
+@media only screen and (max-width: 767px)
+.container {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+@media only screen and (max-width: 1400px)
+.container {
+    max-width: 1216px;
+}
+
+
+@media only screen and (max-width: 1600px)
+.container {
+    max-width: 1456px;
+}
+
+@media (min-width: 481px) and (max-width: 600px)
+.tariff.tariff--everyday .main {
+    background-position: 27% 72px;
+}
+
+@media (max-width: 1200px)
+.tariff .main {
+    height: calc(100vh - 72px);
+}
+
+@media (max-width: 600px)
+.tariff .tittle {
+    text-align: center;
+}
+@media (max-width: 640px)
+.tariff .tittle {
+    font-size: 65px;
+}
+@media (max-width: 767px)
+.tariff .tittle {
+    font-size: 90px;
+}
+@media (max-width: 1023px)
+.tariff .tittle {
+    font-size: 110px;
+}
+@media (max-width: 1400px)
+.tariff .tittle {
+    font-size: 130px;
+    line-height: 1;
+    margin-bottom: 0;
+}
+@media (max-width: 600px)
+.tittle {
+    font-size: 46px;
+    line-height: 1;
+    text-align: center !important;
+    width: 100%;
+    margin: 0 auto 16px;
+}
+
+@media (max-width: 767px)
+.tittle {
+    font-size: 55px;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 1400px)
+.tittle {
+    font-size: 85px;
+    line-height: 84px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 600px)
+.tariff .subtittle {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 260px;
+}
+
+@media (max-width: 1400px)
+.tariff .subtittle {
+    font-size: 24px;
+    line-height: 32px;
+}
+
+@media (max-width: 600px)
+.main__subtitle {
+    font-size: 18px;
+    line-height: 18px;
+    margin-bottom: 24px;
+    font-weight: 500;
+    max-width: 230px;
+    text-align: center;
+    margin: 0 auto 24px;
+}
+@media (max-width: 767px)
+.main__subtitle {
+    font-size: 22px;
+    line-height: 24px;
+}
+
+@media (max-width: 1400px)
+.main__subtitle {
+    font-size: 24px;
+    line-height: 32px;
+    margin-bottom: 72px;
+}
+
+@media (max-width: 600px)
+.main-info {
+    justify-content: flex-end;
+}
+
+@media (max-width: 1023px)
+.tariff .cars-head {
+    margin-bottom: 48px;
+}
+@media (max-width: 1400px)
+.tariff .cars-tittle {
+    font-size: 40px;
+    line-height: 1;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 1400px)
+.tariff .cars-desc {
+    font-size: 18px;
+    line-height: 26px;
+}
+
+@media (max-width: 1400px)
+.tariff .cars {
+    padding-bottom: 96px;
+}
+
+@media (max-width: 1023px)
+.tariff .cars {
+    padding-bottom: 80px;
+}
+
+@media (max-width: 640px)
+.tariff .cars {
+    padding-bottom: 70px;
+}
+
+@media (max-width: 640px)
+.cars-list {
+    margin-bottom: 70px;
+}
+
+@media (max-width: 1023px)
+.cars-list {
+    margin-bottom: 80px;
+}
+
+@media (max-width: 1400px)
+.cars-list {
+    margin-bottom: 96px;
+}
+
+@media (max-width: 1023px)
+.card {
+  padding: 24px 32px 32px 0;
+}
+
+@media (max-width: 950px)
+.cars-item-pic img {
+    margin: 0 auto;
+}
+
+@media (max-width: 1400px)
+.cars-item-pic img {
+    max-width: 100%;
+}
+
+@media (max-width: 1023px)
+.advantages-cards {
+    flex-wrap: wrap;
+    width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 640px)
+.tariff .advantages-cards {
+    width: 100%;
+}
+
+@media (max-width: 1200px)
+.tariff .advantages-card {
+    width: 24%;
+}
+
+@media (max-width: 1023px)
+.tariff .advantages-card {
+    width: 48%;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 1400px)
+.tariff .advantages-card-top {
+    width: 208px;
+    height: 208px;
+    margin-bottom: 41px;
+}
+
+@media (max-width: 1200px)
+.tariff .advantages-card-top {
+    width: 176px;
+    height: 176px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 640px)
+.tariff .advantages-card-top {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 1400px)
+.tariff .advantages-card-title {
+    font-size: 16px;
+    line-height: 20px;
+}
+
+@media (max-width: 640px)
+.tariff .advantages-card-text {
+    line-height: 20px;
+}

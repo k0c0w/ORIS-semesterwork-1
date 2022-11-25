@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <script type="text/javascript" src="/js/commonFunctions.js"></script>
+    <title>Города</title>
+  </head>
+  <body class="tariff tariff--everyday">
+    <header class="header fixed" id="header">
+      <div class="container container-header header-content">
+        <div class="header-content-left">
+          <div class="header-support">
+            <div class="header-support-text">24/7, без выходных</div>
+            <a class="header-support-phone" href="tel:88005510121">8 800 551-01-21</a>
+          </div>
+        </div>
+        <ul class="header-content-menu">
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/#tariffs">Тарифы</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/help/">Помощь</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/documents/">Документы</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/#">Города</a></li>
+          <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/loyalty">Программа лояльности</a></li>
+        </ul>
+        <a class ="logo" id="login" href="/login">Войти</a>
+        <div class="mobile-menu">
+          <svg class="burger" width="25" height="18" viewBox="0 0 25 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="25" height="2" rx="1" fill="white"></rect>
+            <rect y="8" width="25" height="2" rx="1" fill="white"></rect>
+            <rect y="16" width="25" height="2" rx="1" fill="white"></rect>
+          </svg>
+          <svg class="close" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <use xlink:href="#close"></use>
+          </svg>
+        </div>
+      </div>
+    </header>
+    <section class="main frame">
+      <div class="container">
+        <div class="greeting-content">
+          <div class="main-info">
+            <h2>Города</h2>
+	    <ol>
+	    {{for city in cities}}
+		<li>{{city}}</li>
+            {{end}}
+	    </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script type="text/javascript">
+	trySetUserName();
+    </script>
+  </body>
+</html>

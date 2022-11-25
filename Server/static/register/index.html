@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/common.css">
+    <script type="text/javascript" src="/js/commonFunctions.js"></script>
+    <script type="text/javascript" src="/js/auth/auth.js"></script>
+    <title>Регистрация</title>
+  </head>
+  <body>
+    <header class="header fixed" id="header">
+          <div class="container container-header header-content">
+            <div class="header-content-left">
+              <div class="header-support">
+                <div class="header-support-text">24/7, без выходных</div>
+                <a class="header-support-phone" href="tel:88005510121">8 800 551-01-21</a>
+              </div>
+            </div>
+            <ul class="header-content-menu">
+              <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/#tariffs">Тарифы</a></li>
+              <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/help/">Помощь</a></li>
+              <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/documents/">Документы</a></li>
+              <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/city">Города</a></li>
+              <li class="header-content-menu-item"><a class="header-content-menu-item-link" href="/loyalty">Программа лояльности</a></li>
+            </ul>
+            <a class ="logo" id="login" href="/login">Войти</a>
+            <div class="mobile-menu">
+              <svg class="burger" width="25" height="18" viewBox="0 0 25 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="25" height="2" rx="1" fill="white"></rect>
+                <rect y="8" width="25" height="2" rx="1" fill="white"></rect>
+                <rect y="16" width="25" height="2" rx="1" fill="white"></rect>
+              </svg>
+              <svg class="close" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="#close"></use>
+              </svg>
+            </div>
+          </div>
+          <div class="mobile-menu-content">
+            <!-- сделать бургер меню-->
+          </div>
+        </header>
+
+<div style="margin-top: 100px; display:flex; justify-content:center; align-items:center; min-height:500px; flex-direction:column;">
+  <form class="questions-form" action="../auth/register" id="register-form" method="POST">
+    <h2>Регистрация</h2>
+<div>
+  <div class="questions-form-field">
+    <input id="register-name" class="questions-form-input form-input" type="text" name="firstName" placeholder="Ваше имя" required>
+    <p class="questions-form-error">Введите имя</p>
+  </div>
+  <div class="questions-form-field">
+    <input id="register-email" class="questions-form-input form-input" type="email" name="email" placeholder="Email" required>
+    <p class="questions-form-error">Неверный формат</p>
+  </div>
+  <div class="questions-form-field">
+    <input id="register-phone" class="questions-form-input form-input" type="tel" name="telephone" placeholder="+7" required>
+    <p class="questions-form-error">Неверный формат</p>
+  </div>
+  <div class="questions-form-field questions-form-field-textarea">
+    <input  id="register-password" class="questions-form-input form-input" type="password" name="password" placeholder="Придумайте пароль" required>
+    <p class="questions-form-error">Не менее 5 символов. Латиница и цифры</p>
+  </div>
+  <div class="questions-form-field questions-form-field-textarea">
+    <input  id="register-password-repeat" class="questions-form-input form-input" type="password" placeholder="Повторите пароль" required>
+    <p class="questions-form-error">Пароли не совпадают</p>
+  </div>
+  <div class="questions-form-field questions-form-field-textarea">
+    <input  id="register-birthDate" class="questions-form-input form-input" type="date" placeholder="Дата рождения" name = "birthDate" required>
+    <p class="questions-form-error">Вам должно быть 18 лет и более.</p>
+  </div>
+  <div class="form-section-footer">
+    <label class="form-accept">
+		              <input id="register-agreement" type="checkbox" name="accept">
+                  <div class="form-accept-description">Я согласен с<a href="#">&nbsp;правилами&nbsp;</a>обработки персональных данных</div>
+                </label>
+    <div class="button-submit"><button class="button button-link" type="submit" data-form="question">Зарегестрироваться</button></div>
+  </div>
+</div>
+</form>
+</div>
+<script type="text/javascript">
+  subscribeSubmit('register-form', validateRegister);
+</script>
+  </body>
+</html>
