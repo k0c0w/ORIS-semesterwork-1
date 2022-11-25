@@ -35,6 +35,6 @@ public class QuestionController
         };
         var affected = new ORM().Insert(question);
 
-        return affected != 0 ? new Created() : new BadRequest();
+        return affected != 0 ? new HtmlResult("Спасибо за обращение! Мы с Вами свяжемся.") : new BadRequest();
     }
 }

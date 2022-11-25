@@ -132,7 +132,7 @@ namespace Server
                     controller.GetConstructor(new Type[0]).Invoke(Array.Empty<object>()), method, parameters);
                 await actionResult.ExecuteResultAsync(context);
             }
-            else await new Unauthorized().ExecuteResultAsync(context);
+            else await new Redirect("/login").ExecuteResultAsync(context);
         }
         
         private void AddValueToParameters<T>(Dictionary<string, object> parameters, 

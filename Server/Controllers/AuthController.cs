@@ -49,19 +49,19 @@ public class AuthController
 
 
     [HttpPost("register")]
-    public IActionResult Register([FromQuery] string email, [FromQuery] string password, 
-        [FromQuery] DateTime birthDate, [FromQuery] bool personalDataProcessingAgreement)
+    public IActionResult Register([FromQuery] string email, [FromQuery] string password, [FromQuery] string firstName,
+        [FromQuery] DateTime birthDate, [FromQuery] string accept)
     {
         var badFields = new List<InputError>(4);
-        
+        var dataProcessingAgreement = !string.IsNullOrEmpty(accept) && accept == "on";
         if(!FormFieldValidator.IsEmailValid(email))
             badFields.Add(new InputError(nameof(email), ErrorMessages.IncorrectEmailFormat));
         if(!FormFieldValidator.IsPasswordValid(password))
             badFields.Add(new InputError(nameof(password), ErrorMessages.PasswordShould));
         if (!FormFieldValidator.IsCorrectAge(birthDate))
             badFields.Add(new InputError(nameof(birthDate), ErrorMessages.IncorrectAge));
-        if(!personalDataProcessingAgreement)
-            badFields.Add(new InputError(nameof(personalDataProcessingAgreement), "Для регистрации необходимо Ваше согласие на обработку персональных данных!"));
+        if(!dataProcessingAgreement)
+            badFields.Add(new InputError(nameof(accept), "Для регистрации необходимо Ваше согласие на обработку персональных данных!"));
         
         if(badFields.Any())
             return ReturnErrorJson(badFields);
@@ -73,18 +73,22 @@ public class AuthController
             return ReturnErrorJson(badFields);
         }
 
-        var isCreated = TryCreateUser(email, password, birthDate, personalDataProcessingAgreement);
-        return new Json<OperationResultDto>(new OperationResultDto {Success = isCreated,
-            Errors = new []{ new InputError("server-error", "Ошибка регистрации.")}});
+        var isCreated = TryCreateUser(email, firstName, password, birthDate, dataProcessingAgreement);
+        if (isCreated)
+            return new Redirect("/login");
+        
+        return new Json<OperationResultDto>(new OperationResultDto 
+            { Errors = new []{ new InputError("server-error", "Ошибка регистрации.")}});
     }
     
     private IActionResult ReturnErrorJson(List<InputError> badFields) 
         => new Json<OperationResultDto>(new OperationResultDto {Errors = badFields.ToArray()});
 
-    private bool TryCreateUser(string email, string password, DateTime birtDate, bool agreement)
+    private bool TryCreateUser(string email, string firstName, string password, DateTime birtDate, bool agreement)
     {
         var user = new User
-            { Email = email, Password = password, BirthDate = birtDate, DataProcessingAgreement = agreement };
+            { Email = email, Password = password, 
+                BirthDate = birtDate, DataProcessingAgreement = agreement, FirstName = firstName};
         var insertedRows = _orm.Insert(user);
         return insertedRows != 0;
     }
