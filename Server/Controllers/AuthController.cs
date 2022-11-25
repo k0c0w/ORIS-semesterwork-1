@@ -16,8 +16,8 @@ public class AuthController
     public IActionResult Login([FromQuery] string email, [FromQuery] string password, [FromQuery] bool rememberMe,
         [CookieRequired] CookieCollection cookies)
     {
-        if(!FormFieldValidator.IsEmailValid(email) || !FormFieldValidator.IsPasswordValid(password))
-            return ActionResultFactory.Unauthorized();
+        if (!FormFieldValidator.IsEmailValid(email) || !FormFieldValidator.IsPasswordValid(password))
+            return new Unauthorized();
         var sessionCookie = cookies["SessionId"]?.Value;
         var user = _orm.Select(new WhereModel<User>(new User() { Email = email, Password = password }))
             .FirstOrDefault();
@@ -41,13 +41,11 @@ public class AuthController
                     session = CreateNewSession((int)user.Id);
                     _sessionManager.CreateLongSession(session.Id, () => session );
                 }
-                
-                return ActionResultFactory.SendHtml("true", 
-                    new SessionInfo() { Guid = session.Id, LongLife = rememberMe});
+                return new Redirect("/", new SessionInfo {Guid = session.Id, LongLife = rememberMe});
             }
         }
 
-        return ActionResultFactory.Unauthorized();
+        return new Unauthorized();
     }
 
 
@@ -77,12 +75,12 @@ public class AuthController
         }
 
         var isCreated = TryCreateUser(email, password, birthDate, personalDataProcessingAgreement);
-        return ActionResultFactory.Json(new OperationResultDto {Success = isCreated,
+        return new Json<OperationResultDto>(new OperationResultDto {Success = isCreated,
             Errors = new []{ new InputError("server-error", "Ошибка регистрации.")}});
     }
     
     private IActionResult ReturnErrorJson(List<InputError> badFields) 
-        => ActionResultFactory.Json(new OperationResultDto {Errors = badFields.ToArray()});
+        => new Json<OperationResultDto>(new OperationResultDto {Errors = badFields.ToArray()});
 
     private bool TryCreateUser(string email, string password, DateTime birtDate, bool agreement)
     {

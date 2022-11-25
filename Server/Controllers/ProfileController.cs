@@ -52,7 +52,7 @@ public class ProfileController
             badFields.Add(new InputError(nameof(cvc), "Неверный CVV/CVC код"));
         
         if(badFields.Any())
-            return ActionResultFactory.Json(new OperationResultDto() {Errors = badFields.ToArray()});
+            return Json(new OperationResultDto() {Errors = badFields.ToArray()});
 
         var updatedRows = _orm.Update(new PersonalInfo()
         {
@@ -67,7 +67,7 @@ public class ProfileController
             CVC = string.IsNullOrEmpty(cvc) ? personalInfo.CVC : int.Parse(cvc),
         }, new WhereModel<PersonalInfo>(personalInfo));
         
-        return ActionResultFactory.Json(new OperationResultDto() {Success = updatedRows > 0});
+        return Json(new OperationResultDto() {Success = updatedRows > 0});
     }
     
     [HttpPost("edit")]
@@ -92,7 +92,7 @@ public class ProfileController
             badFields.Add(new InputError(nameof(email), ErrorMessages.EmailAlreadyUsed));
         
         if(badFields.Any())
-            return ActionResultFactory.Json(new OperationResultDto() {Errors = badFields.ToArray()});
+            return Json(new OperationResultDto() {Errors = badFields.ToArray()});
 
         var updatedRows = _orm.Update(new User()
         {
@@ -101,7 +101,7 @@ public class ProfileController
             Email = email
         }, new WhereModel<User?>(user));
         
-        return ActionResultFactory.Json(new OperationResultDto() {Success = updatedRows > 0});
+        return Json(new OperationResultDto() {Success = updatedRows > 0});
     }
 
     [HttpPost("edit/password")]
@@ -124,26 +124,26 @@ public class ProfileController
             _sessionManager.TerminateSession(session);
             _sessionManager.CreateQuickSession(newSession.Id, () => newSession);
 
-            return ReturnTemplate(userName, Array.Empty<string>(), true);
+            return ReturnErrorTemplate(userName, Array.Empty<string>(), true);
         }
 
-        return ReturnTemplate(userName, errors.ToArray(), false);
+        return ReturnErrorTemplate(userName, errors.ToArray(), false);
     }
     
     [HttpGet("edit/password")]
     [AuthorizeRequired]
     public IActionResult ChangeUserPasswordPage([UserRequired] User user)
     {
-        return ReturnTemplate(user?.FirstName,Array.Empty<string>(), false);
+        return ReturnErrorTemplate(user?.FirstName,Array.Empty<string>(), false);
     }
     
     [HttpGet("getUserName")]
     [AuthorizeRequired]
     public IActionResult GetUserNameJson([UserRequired] User user) 
-        => ActionResultFactory.Json(new {name = user.FirstName});
+        => Json(new {name = user.FirstName});
     
 
-    private IActionResult ReturnTemplate(string name, string[] errors, bool isChanged)
+    private IActionResult ReturnErrorTemplate(string name, string[] errors, bool isChanged)
     {
         return new TemplateView("PasswordChangePage", 
             new
@@ -153,4 +153,6 @@ public class ProfileController
                 success = isChanged,
             });
     }
+    
+    private IActionResult Json<T>(T model) => new Json<T>(model);
 }

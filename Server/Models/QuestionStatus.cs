@@ -4,7 +4,7 @@ namespace Server.Models;
 
 public enum QuestionStatus
 {
-    Opened,
-    InWork,
-    Closed
+    Opened = 1,
+    InWork = 2,
+    Closed = 3
 }

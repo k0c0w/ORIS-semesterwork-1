@@ -4,19 +4,23 @@ using System.Text.Json;
 
 namespace Server.Services.ServerServices;
 
-public static class ActionResultFactory
+
+public class Created : IActionResult
 {
-    public static IActionResult SendHtml(string html) => new HtmlResult(html); 
-    public static IActionResult SendHtml(string html, SessionInfo sessionInfo) => new HtmlResult(html, sessionInfo);
-    public static IActionResult SendHtml(byte[] html) => new HtmlResult(html);
+    public Task ExecuteResultAsync(HttpListenerContext context)
+    {
+        context.Response.SetStatusCode((int)HttpStatusCode.Created).Close();
+        return Task.CompletedTask;
+    }
+}
 
-    public static IActionResult RedirectTo(string redirectTo) => new Redirect(redirectTo);
-
-    public static IActionResult Json<T>(T model) => new Json<T>(model);
-
-    public static IActionResult NotFound() => new NotFound();
-
-    public static IActionResult Unauthorized() => new Unauthorized();
+public class BadRequest : IActionResult
+{
+    public Task ExecuteResultAsync(HttpListenerContext context)
+    {
+        context.Response.SetStatusCode((int)HttpStatusCode.BadRequest).Close();
+        return Task.CompletedTask;
+    }
 }
 
 public class NotFound : IActionResult
@@ -76,11 +80,25 @@ public class HtmlResult : IActionResult
 public class Redirect : IActionResult
 {
     private readonly string _route;
-    public Redirect(string route) => _route = route;
-    
+    private readonly SessionInfo? _sessionInfo;
+    public Redirect(string route, SessionInfo? sessionInfo=null)
+    {
+        _route = route;
+        _sessionInfo = sessionInfo;
+    }
+
+
     public Task ExecuteResultAsync(HttpListenerContext context)
     {
         var response = context.Response.SetStatusCode((int)HttpStatusCode.SeeOther);
+        if (_sessionInfo != null)
+        {
+            var cookie = new Cookie { Name = "SessionId", Value = $"{_sessionInfo.Guid}", Path = "/" };
+            if(_sessionInfo.LongLife)
+                cookie.Expires = DateTime.Now.Add( TimeSpan.FromDays(180));
+                
+            response.Cookies.Add(cookie);
+        }
         response.Headers.Set("Location", _route);
         response.Close(); 
         return Task.CompletedTask;

@@ -66,18 +66,13 @@ namespace Server
             try
             {
                 await GiveContextToControllerByRouteIfExists(context);
+                logger.Log($"\n{request.ProtocolVersion} {request.HttpMethod} {request.Url} {context.Response.StatusCode}\n");
             }
-            catch
+            catch(Exception exception)
             {
                 logger.Log($"Can not handle request {context.Request.Url}");
-                context.Response
-                    .Write404PageToBody()
-                    .SetStatusCode((int)HttpStatusCode.NotFound)
-                    .SetContentType(".html")
-                    .Close();
+                new ExceptionHandler().Handle((dynamic)exception, context.Response);
             }
-
-            logger.Log($"\n{request.ProtocolVersion} {request.HttpMethod} {request.Url} {context.Response.StatusCode}\n");
         }
 
         private async Task GiveContextToControllerByRouteIfExists(HttpListenerContext context)
@@ -97,7 +92,7 @@ namespace Server
 
             if (controller == null)
             {
-                await ActionResultFactory.NotFound().ExecuteResultAsync(context);
+                await new NotFound().ExecuteResultAsync(context);
                 return;
             }
             
@@ -111,7 +106,7 @@ namespace Server
 
             if (method == null)
             {
-                await ActionResultFactory.NotFound().ExecuteResultAsync(context);
+                await new NotFound().ExecuteResultAsync(context);
                 return;
             }
 
@@ -129,11 +124,15 @@ namespace Server
                     AddValueToParameters(parameters, GetUserBySession(session), methodParameters, typeof(UserRequiredAttribute));
                 if (methodParametersAttributesTypes.Any(x => x== typeof(SessionRequiredAttribute)))
                     AddValueToParameters(parameters, session, methodParameters, typeof(SessionRequiredAttribute));
+                
+                if (methodParameters.Any(x => !parameters.ContainsKey(x.Name)))
+                    throw new MethodNotFoundException();
+                
                 var actionResult = GetActionResultTaskFromMethod(
                     controller.GetConstructor(new Type[0]).Invoke(Array.Empty<object>()), method, parameters);
                 await actionResult.ExecuteResultAsync(context);
             }
-            else await ActionResultFactory.Unauthorized().ExecuteResultAsync(context);
+            else await new Unauthorized().ExecuteResultAsync(context);
         }
         
         private void AddValueToParameters<T>(Dictionary<string, object> parameters, 
@@ -167,7 +166,6 @@ namespace Server
             var paramsIn = method.GetParameters()
                 .Select(p => Convert.ChangeType(parameters[p.Name], p.ParameterType))
                 .ToArray();
-
             return (IActionResult)method.Invoke(controller, paramsIn);
         }
         
@@ -282,8 +280,12 @@ namespace Server
         }
         
         private static string? RemoveSlashes(string? input) => input?.Replace("/", string.Empty);
-        
-        private User? GetUserBySession(Session userSession)
-            => _orm.Select(new WhereModel<User>(new User{ Id = userSession.AccountId })).FirstOrDefault();
+
+        private User? GetUserBySession(Session? userSession)
+        {
+            if (userSession == null)
+                return null;
+            return _orm.Select(new WhereModel<User>(new User{ Id = userSession.AccountId })).FirstOrDefault();
+        }
     }
 }
