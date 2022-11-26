@@ -10,7 +10,7 @@ function trySetUserName(){
         }
     };
 
-    xmlhttp.open('GET', 'http://localhost:8080/profile/getUserName', true);
+    xmlhttp.open('GET', '../../profile/getUserName', true);
     xmlhttp.send();
 }
 

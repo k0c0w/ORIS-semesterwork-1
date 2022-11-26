@@ -1,6 +1,6 @@
 function postToEdit(postFunc){
   return function(a,b){
-    return postFunc('http://localhost:8080/profile/edit', a, b, onUnauthorized);
+    return postFunc('../../profile/edit', a, b, onUnauthorized);
   }
 }
 

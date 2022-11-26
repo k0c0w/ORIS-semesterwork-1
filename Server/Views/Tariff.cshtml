@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/tariff/tariff_media.css">
     <script type="text/javascript" src="/js/commonFunctions.js"></script>
+    <script type="text/javascript" src="../js/tariff/tariff.js"></script>
     <title>Тариф '{{name}}'</title>
   </head>
   <body class="tariff tariff--everyday">
@@ -53,12 +54,8 @@
               </h2>
             </div>
             <div class="greeting-buttons">
-              <div class="button">
-                <a href="#cars">К машинам</a>
-              </div>
-              <div class="button">
-                <a href="#question">Задать вопрос</a>
-              </div>
+                <a class="button" href="#cars">К машинам</a>
+                <a class="button" href="#question">Задать вопрос</a>
             </div>
           </div>
         </div>
@@ -110,19 +107,67 @@
               {{for car in cars}}
               <li class="cars-list-item">
                 <div class="card car-card" style="width: 20rem; min-height: 24rem;">
-                  <img class="card-img-top" src="../{{car.car_info.image_source}}" alt="{{car.car_info.brand}}">
+                  <img id= "{{car.car_info.id}}-image" class="card-img-top" src="../{{car.car_info.image_source}}" alt="{{car.car_info.brand}}">
                   <div class="card-body">
-                    <h5 class="card-title">{{car.car_info.brand}} {{car.car_info.model}}</h5>
+                    <h5 id="{{car.car_info.id}}-name" class="card-title">{{car.car_info.brand}} {{car.car_info.model}}</h5>
                     <h6 class="card-subtitle card-subtitle mb-2 text-muted">{{car.price}}</h6>
                     <p class="card-text">{{car.car_info.description}}</p>
                     <div class="card-button-container">
-                      <a href="#" class="btn btn-primary">Перейти к аренде</a>
+                      <button class="btn btn-primary" onclick="openOrderingBLock({{car.car_info.id}});">Перейти к аренде</button>
                     </div>
                   </div>
                 </div>
               </li>
               {{end}}
             </ul>
+            <div class="df-popup" id="df">
+              <div id="container" class="df-popup-container">
+                <div class="df-popup-content">
+                  <div class="p-price-left">
+                    <div class="p-price-name" id="brand-model">RX-7</div>
+                    <div class="p-price-content">
+                      <div class="p-price-img">
+                        <img id="car-image" src="" alt="">
+                      </div>
+                    </div>
+                    <div class="limit">
+                      <div class="limit-title">
+                        <span>Ограничение по пробегу</span>
+                      </div>
+                      <div class="limit-value">
+                        500 км/день
+                      </div>
+                      <div class="limit-note">
+                        Сверх ограничения — 10 ₽/км
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-price-right">
+                    <div style="">
+                      <p class="start-end">Начало аренды</p>
+                      <input id = "start" type="date" class="questions-form-input form-input" name="start" value="">
+                    </div>
+                    <div style="">
+                      <p class="start-end">Конец аренды</p>
+                      <input id = "end" type="date" class="questions-form-input form-input" name="end" value="">
+                    </div>
+                    <div style="">
+                      <p class="start-end">Город</p>
+                      <input id = "city" type="text" class="questions-form-input form-input" name="city" value="">
+                    </div>
+                    <div style=" min-height: 50px;">
+                      <p style="color:red;" id="error-field"></p>
+                    </div>
+                    <div style="justify-content:center; display:flex;">
+                      <button id="order" class="button" type="button" value="">
+                        Арендовать
+                      </button>
+                      <input style="display:none;" id="tariff-name" value="{{name}}">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
