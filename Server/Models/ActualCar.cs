@@ -3,10 +3,10 @@
 namespace Server.Models;
 
 [Table("CarPark")]
-public record Car
+public record ActualCar
 {
     public int? Id { get; init; }
-    public int? CarModel { get; init; }
+    public int? Car { get; init; }
     public string? RegisterSign { get; init; }
     public int? City { get; init; }
     public bool? IsBusy { get; init; }
