@@ -32,6 +32,17 @@ public class ORM
         }
     }
 
+    public object CallFunction(string name, params object[] args)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        using var cursor = connection.CreateCommand();
+        cursor.CommandText = $"select [dbo].{name}({string.Join(',', args.Select(x => GetConvertedToSqlString(x)))})";
+        connection.Open();
+        var reader = cursor.ExecuteReader();
+        reader.Read();
+        return reader.GetValue(0);
+    }
+    
     public IEnumerable<T> Select<T>(WhereModel<T> condition) => Select<T>(condition.GetSQLConstraints);
 
     public IEnumerable<T> Select<T>(IEnumerable<WhereModel<T>> models) 
